@@ -1,0 +1,65 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+    <h5 class="text-center">Liste de Médecins</h5>
+    <hr class="my-4">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <a href="{% url 'render_page' 'register_docteur' %}" class="btn btn-primary w-100">
+                <i class="fas fa-plus me-2"></i>Nouveau
+            </a>
+        </div>
+        <div class="col-md-6">
+            <form action="" method="post" class="d-flex">
+                {% csrf_token %}
+                <input type="text" class="form-control me-2" name="search_term" placeholder="Rechercher par nom, pr nom...">
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <!-- tableau  -->
+
+            <table class="table table-striped table-hover">
+
+                <thead>
+                    <tr>
+                        <th><span>Nom</span></th>
+                        <th><span>Prénom</span></th>
+                        <th><span>Sexe</span></th>
+                        <th><span>Email</span></th>
+                        <th><span>Téléphone</span></th>
+                        <th><span>Numéro d'ordre</span></th>
+                    </tr>
+                </thead>
+    
+                <tbody>
+
+                    {% for doctor in doctors %}
+                        <tr>
+                            <td>{{ doctor.first_name }}</td>
+                            <td>{{ doctor.last_name }}</td>
+                            <td>{{ doctor.gender }}</td>
+                            <td>{{ doctor.email }}</td>
+                            <td>{{ doctor.phone }}</td>
+                            <td>{{ doctor.order }}</td>
+                        </tr>
+                    {% endfor %}
+                    
+                </tbody>
+    
+            </table>
+
+            <!-- fin tableau  -->
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}

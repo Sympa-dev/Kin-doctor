@@ -1,0 +1,434 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="d-flex flex-column">
+        <header class="app__header px-4 py-2">
+            <div class="logo-doc">
+                <img src="{% static 'media/doctaplus.png' %}" alt="Logo" class="logo-doc">
+            </div>
+
+            <div class="d-flex align-items-center gap-4">
+                
+                    <!-- Notifications -->
+                    <div class="dropdown">
+                        <button class="btn position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                3
+                                <span class="visually-hidden">unread notifications</span>
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">Nouveau rendez-vous</a></li>
+                            <li><a class="dropdown-item" href="#">Nouvelle consultation</a></li>
+                            <li><a class="dropdown-item" href="#">Nouveau message</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Messages -->
+                    <div class="dropdown">
+                        <button class="btn position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-envelope"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                2
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">Message de Dr. Smith</a></li>
+                            <li><a class="dropdown-item" href="#">Message de l'administration</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Messages -->
+                    
+
+                    {% if request.user.is_authenticated %}
+                    <!-- User Profile -->
+                    <div class="dropdown">
+                        <button class="app__header-profile btn dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="bg-gray-300 overflow-hidden" style="width: 40px; height: 40px;">
+                                <span>{{ request.user.username}}</span>
+                            </div>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <nav>
+                        <ul class="list-unstyled d-flex gap-3 mb-0">
+                                <li>
+                                    <a href="{% url 'logout' %}" class="btn btn-primary">Déconnexion</a>
+                                </li>
+                        </ul>
+                    </nav>
+                {% endif %}
+            </div>
+
+        </header>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        {% if request.user.is_doctor %}
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-3 px-1 text-white" href="{% url 'doctor_dashboard' %}">
+                                <i class="fas fa-hospital"></i>
+                                <span>Tableau de bord Médécin</span>
+                            </a>
+                        </li>
+                        {% elif request.user.is_nurse %}
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-3 px-1 text-white" href="{% url 'nurse_dashboard' %}">
+                                <i class="fas fa-hospital"></i>
+                                <span>Tableau de bord Infirmier</span>
+                            </a>
+                        </li>
+
+                        {% else %}
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-3 px-1 text-white" href="{% url 'dashboard' %}">
+                                <i class="fas fa-hospital"></i>
+                                <span>Tableau de bord Admin</span>
+                            </a>
+                        </li>
+
+                        {% endif %}
+
+                        <!-- Médecins -->
+
+                        {% if request.user.is_doctor %}
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="{% url 'consultation_list' %}">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Liste de consultations</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="{% url 'plan_consultation' %}">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Consultater</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="#">
+                                <i class="fas fa-flask"></i>
+                                <span>Examens</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="#">
+                                <i class="fas fa-file-medical"></i>
+                                <span>Fiches malades</span>
+                            </a>
+                        </li>
+
+                        <!-- Patients -->
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-3 px- text-white" data-bs-toggle="collapse" href="#patientSubmenu" role="button" aria-expanded="false" aria-controls="patientSubmenu">
+                                <i class="fas fa-users"></i>
+                                <span>Patients</span>
+                                <i class="fas fa-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="patientSubmenu">
+                                <ul class="nav flex-column ms-4">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="{% url 'inscription_patient' %}">
+                                            <i class="fas fa-plus me-2"></i>Nouveau patient
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="{% url 'render_page' 'liste_patient' %}">
+                                            <i class="fas fa-list me-2"></i>Liste des patients
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="{% url 'consultation_list' %}">
+                                            <i class="fas fa-list me-2"></i>Consultations
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        {% elif request.user.is_laboratory_technician %}
+
+                        <!-- Laboratoire -->
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-3 px-4 text-white" data-bs-toggle="collapse" href="#laboratoireSubmenu" role="button" aria-expanded="false" aria-controls="laboratoireSubmenu">
+                                <i class="fas fa-flask"></i>
+                                <span>Laboratoire</span>
+                                <i class="fas fa-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="laboratoireSubmenu">
+                                <ul class="nav flex-column ms-4">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-plus me-2"></i>Nouveau examen
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-hourglass-half me-2"></i>Examens en cours
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-check-circle me-2"></i>Examens terminés
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-file-medical-alt me-2"></i>Résultats d'examens
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-boxes me-2"></i>Gestion du stock
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        {% elif request.user.is_nurse %}
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="{% url 'inscription_patient' %}">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Nouveau patient</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="{% url 'liste_patient' %}">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Liste des patients</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="{% url 'medicalrecord' %}">
+                                <i class="fas fa-folder"></i>
+                                <span>Dossier patient</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="{% url 'plan_consultation' %}">
+                                <i class="fas fa-file-medical"></i>
+                                <span>Consultation</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="#">
+                                <i class="fas fa-file-medical"></i>
+                                <span>Archives</span>
+                            </a>
+                        </li>
+
+                        {% elif request.user.is_admin %}
+
+                        <!-- medecin -->
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gx-1 text-white" data-bs-toggle="collapse" href="#adminSubmenu" role="button" aria-expanded="false" aria-controls="adminSubmenu">
+                                <i class="fas fa-cogs me-1"></i>
+                                <span class="me-1">Gestion de Médecins</span>
+                                <i class="fas fa-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="adminSubmenu">
+                                <ul class="nav flex-column ms-4">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="{% url 'registered' %}">
+                                            <i class="fas fa-plus me-2"></i>Nouveau médecin
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="{% url 'all_doctor' %}">
+                                            <i class="fas fa-list me-2"></i>Liste des médecins
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-file-medical me-2"></i>Rapport Medecin
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- patient -->
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gx-1 text-white" data-bs-toggle="collapse" href="#patientSubmenu" role="button" aria-expanded="false" aria-controls="patientSubmenu">
+                                <i class="fas fa-users me-1"></i>
+                                <span class="me-1">Gestion de Patients</span>
+                                <i class="fas fa-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="patientSubmenu">
+                                <ul class="nav flex-column ms-4">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-plus me-2"></i>Nouveau Patient
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-list me-2"></i>Liste des patients
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-file-medical me-2"></i>Rapport Medecin
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- consultation -->
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gx-1 text-white" data-bs-toggle="collapse" href="#consultationSubmenu" role="button" aria-expanded="false" aria-controls="consultationSubmenu">
+                                <i class="fas fa-file-prescription me-2"></i>
+                                <span class="me-1">Consultations</span>
+                                <i class="fas fa-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="consultationSubmenu">
+                                <ul class="nav flex-column ms-4">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-plus me-2"></i>Nouveau médecin
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-list me-2"></i>Liste des médecins
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-file-medical me-2"></i>Rapport Medecin
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- notification-->
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gx-1 text-white" data-bs-toggle="collapse" href="#notificationSubmenu" role="button" aria-expanded="false" aria-controls="consultationSubmenu">
+                                <i class="fas fa-bell me-2"></i>
+                                <span class="me-1">Notifications</span>
+                                <i class="fas fa-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="notificationSubmenu">
+                                <ul class="nav flex-column ms-4">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-plus me-2"></i>Alerte & Urgence
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white py-2" href="">
+                                            <i class="fas fa-comments me-2"></i>Messageries
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-3 px-4 text-white" href="#">
+                                <i class="fas fa-cog"></i>
+                                <span>Paramètres</span>
+                            </a>
+                        </li>
+
+                        {% endif %}
+                        
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 ms-sm-auto px-4">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+       function fetchNotifications() {
+            $.ajax({
+                url: "{% url 'get_notifications' %}",
+                method: "GET",
+                success: function(data) {
+                    let notifications = data.notifications;
+                    let notificationBox = $("#notifications");
+                    notificationBox.empty(); // Efface les notifications existantes
+
+                    // Ajouter chaque notification à la boîte
+                    notifications.forEach(function(notification) {
+                        notificationBox.append(`
+                            <div class="notification">
+                                <strong>${notification.patient_name}</strong><br>
+                                <small>${notification.date}</small>
+                            </div>
+                        `);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("Erreur lors du chargement des notifications :", error);
+                }
+            });
+        }
+
+        
+        // Charger les notifications immédiatement au chargement de la page
+        $(document).ready(function() {
+            fetchNotifications();
+        });
+    
+    </script>
+</body>
+</html>

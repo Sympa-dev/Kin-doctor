@@ -1,0 +1,91 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Colonne de gauche - Détails de la consultation -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <i class="fas fa-user-md me-2"></i>Détails de la consultation
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Patient: {{ consultation.patient }}</h5>
+                    <p class="card-text"><strong>Date:</strong> {{ consultation.consultation_date|date:"d/m/Y" }}</p>
+                    <p class="card-text"><strong>Médecin:</strong> {{ consultation.doctor }}</p>
+                    <p class="card-text"><strong>Spécialité:</strong> {{ consultation.specialty }}</p>
+                    <p class="card-text"><strong>Type:</strong> {{ consultation.type }}</p>
+                    <p class="card-text"><strong>Symptômes:</strong> {{ consultation.symptoms }}</p>
+                    <p class="card-text"><strong>Diagnostic:</strong> {{ consultation.diagnosis }}</p>
+                    {% if consultation.notes %}
+                        <p class="card-text"><strong>Notes:</strong> {{ consultation.notes }}</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'detail_consultation' consultation.id %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Retour à la consultation
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne de droite - Formulaire d'examen -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <i class="fas fa-microscope me-2"></i>Nouvel examen
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Type d'examen</label>
+                            <select name="exam_type" class="form-select" required>
+                                <option value="">Sélectionnez un type d'examen</option>
+                                {% for exam_type in exam_types %}
+                                    <option value="{{ exam_type.id }}">{{ exam_type.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Date de l'examen</label>
+                            <input type="date" name="exam_date" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Enregistrer l'examen
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {% if consultation.examens.exists %}
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <i class="fas fa-clipboard-list me-2"></i>Examens existants
+                </div>
+                <div class="card-body">
+                    {% for examen in consultation.examens.all %}
+                        <div class="alert alert-info">
+                            <h5 class="alert-heading">{{ examen.exam_type }}</h5>
+                            <p class="mb-0">
+                                <small>
+                                    <i class="fas fa-calendar me-2"></i>Date: {{ examen.exam_date|date:"d/m/Y" }}<br>
+                                    <i class="fas fa-clock me-2"></i>Statut: {{ examen.get_status_display }}
+                                </small>
+                            </p>
+                            <div class="mt-2">
+                                <a href="{% url 'detail_examen' examen.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-microscope me-1"></i>Détails examen
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

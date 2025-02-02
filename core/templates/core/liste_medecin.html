@@ -1,0 +1,91 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-3">
+
+    <div class="card-header mb-2">
+        <a href="{% url 'render_page' 'register_docteur' %}" class="btn btn-light border-0 shadow-sm rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2">
+            <i class="fas fa-arrow-left text-primary"></i>
+            <span class="fw-medium">Registre de médecins</span>
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <section class="mb-4">
+                <form action="" method="post">
+                    {% csrf_token %}
+                <div class="row g-3 justify-content-between">
+
+                    <div class="col-md-2">
+                        <a href="{% url 'render_page' 'register_docteur' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-plus me-2"></i>Nouveau
+                        </a>
+                    </div>
+
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="search_term" placeholder="Rechercher par nom, prénom...">
+                    </div>
+    
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Rechercher</button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <hr class="my-4">
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Nom du médecin</th>
+                            <th>Sexe</th>
+                            <th>Département</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                            <th>Numéro d'ordre</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doctor in doctors %}
+                        <tr>
+                            <td>{{ doctor.id }}</td>
+                            <td>{{ doctor.name }} {{ doctor.first_name }}</td>
+                            <td>{{ doctor.gender }}</td>
+                            <td>
+                                <span class="badge bg-secondary">{{ doctor.department.name }}</span>
+                            </td>
+                            <td>{{ doctor.email }}</td>
+                            <td>{{ doctor.phone_number }}</td>
+                            <td>{{ doctor.order_number }}</td>
+                            <td class="text-end">
+                                <div class="btn-group">
+                                    <button class="btn btn-light btn-sm">Voir détails</button>
+                                    <button type="button" class="btn btn-light btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="visually-hidden">Toggle Dropdown</span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">Voir disponibilités</a></li>
+                                        <li><a class="dropdown-item" href="#">Modifier</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#">Supprimer</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center">Aucun médecin trouvé</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

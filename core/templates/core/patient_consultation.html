@@ -1,0 +1,147 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
+        <div class="d-flex">
+            <div class="me-3">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div>
+                <h6 class="alert-heading mb-1">Message</h6>
+                <p class="mb-0">{{ message }}</p>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+{% endif %}
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-2">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fas fa-calendar-plus me-2"></i>
+                        <span class="fw-bold">Consultation du {{ consultation.patient.name }} {{ consultation.patient.first_name }}</span>
+                    </div>
+                </div>
+                <div class="card shadow-sm">
+                    <div class="card-body overflow-auto" style="max-height: 70vh;">
+                        <form method="post" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-calendar me-2"></i>Date de consultation</label>
+                                    <input type="date" name="consultation_date" class="form-control" required value="{{ consultation.consultation_date|date:'Y-m-d' }}">
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-stethoscope me-2"></i>Type de consultation</label>
+                                    <select name="consultation_type" class="form-select" required>
+                                        <option value="">Selectionner un type de consultation</option>
+                                        <option value="{{ consultation.type.id }}" selected>
+                                            {{ consultation.type.name }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-clinic-medical me-2"></i>Spécialité</label>
+                                    <select name="specialty" class="form-select" required>
+                                        <option value="">Sélectionner une spécialité</option>
+                                        <option value="{{ consultation.specialty.id }}" selected>
+                                            {{ consultation.specialty.name }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-user-md me-2"></i>Médecin</label>
+                                    <select name="doctor" class="form-select" required>
+                                        <option value="">Sélectionner un médecin</option>
+                                        <option value="{{ consultation.doctor.id }}" selected>
+                                            {{ consultation.doctor.name }} {{ consultation.doctor.first_name }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-users me-2"></i>Patient</label>
+                                    <select name="patient" class="form-select" required>
+                                        <option value="">Sélectionner un patient</option>
+                                            <option value="{{ consultation.patient.id }}" selected>{{ consultation.patient.name }} {{ consultation.patient.first_name }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label"><i class="fas fa-comment-medical me-2"></i>Symptome</label>
+                                    <textarea name="symptoms" class="form-control" rows="4" required>{{ consultation.symptoms }}</textarea>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label"><i class="fas fa-diagnoses me-2"></i>Diagnostic</label>
+                                    <textarea name="diagnosis" class="form-control" rows="4" required>{{ consultation.diagnosis }}</textarea>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label"><i class="fas fa-sticky-note me-2"></i>Notes</label>
+                                    <textarea name="notes" class="form-control" rows="4" required>{{ consultation.notes }}</textarea>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-question-circle me-2"></i>Consultation Terminée ?</label>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="status" class="form-check-input" id="consultation_status" {% if consultation.status %}checked{% endif %}>
+                                        <label class="form-check-label" for="consultation_status">Oui</label>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Enregistrer la consultation
+                                </button>
+                               
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <span class="fw-bold"><i class="fas fa-exclamation-circle me-2"></i>Information du patient</span>
+                        <span class="badge rounded-pill bg-danger float-end"><i class="fas fa-stethoscope"></i></span>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Nom: {{ consultation.patient.name }}</li>
+                        <li class="list-group-item">Prénom: {{ consultation.patient.first_name }}</li>
+                        <li class="list-group-item">Date de naissance: {{ consultation.patient.birth_date|date:"d/m/Y" }}</li>
+                        <li class="list-group-item">Téléphone: {{ consultation.patient.phone_number }}</li>
+                        <li class="list-group-item">Email: {{ consultation.patient.email_address|default:"Non renseigné" }}</li>
+                    </ul>
+                </div>
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header">
+                        <span class="fw-bold"><i class="fas fa-thermometer me-2"></i>Signes vitaux</span>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Température: {{ sign_vital.temperature }}°C</li>
+                        <li class="list-group-item">Poids: {{ sign_vital.weight }} kg</li>
+                        <li class="list-group-item">Taille: {{ sign_vital.height }} cm</li>
+                        <li class="list-group-item">Fréquence cardiaque: {{ sign_vital.pulse }} bpm</li>
+                        <li class="list-group-item">Pression artérielle: {{ sign_vital.blood_pressure_systolic }}/{{ sign_vital.blood_pressure_diastolic }} mmHg</li>
+                        <li class="list-group-item">Saturation en O2: {{ sign_vital.oxygen_saturation }}%</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

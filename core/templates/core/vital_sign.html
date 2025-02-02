@@ -1,0 +1,187 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
+        <div class="d-flex">
+            <div class="me-3">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div>
+                <h6 class="alert-heading mb-1">Message</h6>
+                <p class="mb-0">{{ message }}</p>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+{% endif %}
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-6">
+           <div class="card p-2">
+            <form method="POST" class="needs-validation" novalidate style="overflow-y: scroll; height: 450px;">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="vitals_form">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="temperature">Température (°C)</label>
+                            <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" value="{{ vital_signs.temperature }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="blood_pressure_systolic">Pression artérielle (systolique)</label>
+                            <input type="number" class="form-control" id="blood_pressure_systolic" name="blood_pressure_systolic" value="{{ vital_signs.blood_pressure_systolic }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="blood_pressure_diastolic">Pression artérielle (diastolique)</label>
+                            <input type="number" class="form-control" id="blood_pressure_diastolic" name="blood_pressure_diastolic" value="{{ vital_signs.blood_pressure_diastolic }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="pulse">Pouls (bpm)</label>
+                            <input type="number" class="form-control" id="pulse" name="pulse" value="{{ vital_signs.pulse }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="respiratory_rate">Fréquence respiratoire (resp/min)</label>
+                            <input type="number" class="form-control" id="respiratory_rate" name="respiratory_rate" value="{{ vital_signs.respiratory_rate }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="oxygen_saturation">Saturation en O2 (%)</label>
+                            <input type="number" step="0.1" class="form-control" id="oxygen_saturation" name="oxygen_saturation" value="{{ vital_signs.oxygen_saturation }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="weight">Poids (kg)</label>
+                            <input type="number" step="0.1" class="form-control" id="weight" name="weight" value="{{ vital_signs.weight }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="height">Taille (cm)</label>
+                            <input type="number" class="form-control" id="height" name="height" value="{{ vital_signs.height }}">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Enregistrer Signes Vitaux
+                </button>
+            </form>
+           </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card py-2 px-3 shadow-sm">
+                <h5 class="card-title mb-4">Information sur le patient</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="last_name"><i class="fas fa-user me-2"></i>Nom et Prénoms</label>
+                        <p>{{ patient.last_name }} {{ patient.first_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="birth_date"><i class="fas fa-calendar me-2"></i>Date de naissance</label>
+                        <p>{{ patient.birth_date|date:"d/m/Y" }}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="phone_number"><i class="fas fa-phone me-2"></i>Téléphone</label>
+                        <p>{{ patient.phone_number }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email_address"><i class="fas fa-envelope me-2"></i>Email</label>
+                        <p>{{ patient.email_address|default:"Non renseigné" }}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="nationality"><i class="fas fa-flag me-2"></i>Nationalité</label>
+                        <p>{{ patient.nationality|default:"Non renseigné" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="street_address"><i class="fas fa-map-marker-alt me-2"></i>Adresse</label>
+                        <p>{% if patient.street_address and patient.province and patient.city %}{{ patient.street_address }}, {{ patient.province }}, {{ patient.city }}{% else %}Adresse non renseignée{% endif %}</p>
+                    </div>
+                </div>
+
+                <!-- sign vitaux -->
+
+                <h5 class="card-title mb-4">Signes vitaux</h5>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Température</th>
+                                <th>Pression artérielle</th>
+                                <th>Pouls</th>
+                                <th>Poids</th>
+                                <th>Hauteur</th>
+                            </tr>
+                        </thead>
+           
+                        <tbody>
+                        {% if sign_vital %}
+                            <tr>
+                                <td><i class="fas fa-thermometer-half me-2"></i>{{ sign_vital.temperature|default_if_none:"Non renseigné" }}</td>
+                                <td><i class="fas fa-briefcase-medical me-2"></i>{{ sign_vital.blood_pressure_systolic|default_if_none:"Non renseigné" }}/{{ sign_vital.blood_pressure_diastolic|default_if_none:"Non renseigné" }}</td>
+                                <td><i class="fas fa-heartbeat me-2"></i>{{ sign_vital.pulse|default_if_none:"Non renseigné" }}</td>
+                                <td><i class="fas fa-weight me-2"></i>{{ sign_vital.weight|default_if_none:"Non renseigné" }}</td>
+                                <td><i class="fas fa-ruler-vertical me-2"></i>{{ sign_vital.height|default_if_none:"Non renseigné" }}</td>
+                                <td><a href="{% url 'edit_sign_vital' sign_vital.id %}"><i class="fas fa-edit"></i></a></td>
+                            </tr>
+                        {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">Aucun signe vital n'a été enregistré.</td>
+                                </tr>
+                        {% endif %}
+                        </tbody>
+            
+                    </table>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-12 d-flex gap-2">
+                        <form method="post" enctype="multipart/form-data" action="{% url 'save_patient' patient.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-save me-1"></i>Enregistrer
+                            </button>
+                        </form>
+
+                        <form action="">
+                            <button type="submit" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-edit me-1"></i>Modifier
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+{% endblock %}

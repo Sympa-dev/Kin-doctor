@@ -1,0 +1,16 @@
+id,age,gender,symptoms,diagnosis,recommended_exam
+1,45,Male,Fever,Malaria,Blood Test
+2,34,Female,Cough,Pneumonia,Chest X-Ray
+3,25,Male,Headache,Migraine,CT Scan
+4,60,Female,Chest Pain,Heart Disease,ECG
+5,50,Male,Abdominal Pain,Appendicitis,Ultrasound
+6,29,Female,Back Pain,Spinal Injury,MRI
+7,38,Male,Shortness of Breath,Asthma,Lung Function Test
+8,22,Female,Skin Rash,Allergy,Skin Biopsy
+9,70,Male,Vision Loss,Cataract,Eye Examination
+10,55,Female,Dizziness,Hypertension,Blood Pressure Test
+11,40,Male,Joint Pain,Arthritis,X-Ray
+12,33,Female,Fatigue,Diabetes,Blood Sugar Test
+13,47,Male,Nausea,Hepatitis,Liver Function Test
+14,28,Female,Fever and Cough,COVID-19,PCR Test
+15,63,Male,Swelling,Kidney Disease,Ultrasound

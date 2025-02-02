@@ -1,0 +1,95 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-3">
+    <div class="row">
+        <!-- Formulaire d'examen -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-flask me-2"></i>Nouvel Examen de Laboratoire
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small">Type d'examen</label>
+                                <select class="form-select form-select-sm" name="exam_type" required>
+                                    <option value="">Sélectionner le type d'examen</option>
+                                    <option value="blood">Analyse de sang</option>
+                                    <option value="urine">Analyse d'urine</option>
+                                    <option value="xray">Radiographie</option>
+                                    <option value="scan">Scanner</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Priorité</label>
+                                <select class="form-select form-select-sm" name="priority" required>
+                                    <option value="normal">Normal</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Notes spéciales</label>
+                            <textarea class="form-control form-control-sm" name="notes" rows="3" placeholder="Entrez les notes ou instructions spéciales"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-save me-2"></i>Enregistrer l'examen
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations de consultation -->
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-stethoscope me-2"></i>Consultation Médicale
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-bold small">Médecin</h6>
+                    <p class="small">Dr. {{ consultation.doctor.get_full_name }}</p>
+                    
+                    <h6 class="fw-bold small">Patient</h6>
+                    <p class="small">{{ consultation.patient.get_full_name }}</p>
+                    
+                    <h6 class="fw-bold small">Date de consultation</h6>
+                    <p class="small">{{ consultation.date }}</p>
+                    
+                    <h6 class="fw-bold small">Diagnostic</h6>
+                    <p class="small">{{ consultation.diagnosis }}</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-list-check me-2"></i>Examens Recommandés
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for exam in recommended_exams %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="small">{{ exam.name }}</span>
+                            <span class="badge bg-primary rounded-pill">{{ exam.status }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted small">Aucun examen recommandé</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,270 @@
+body{
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+.app__header{
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.logo-doc{
+    width: 150px;
+    height: 50px;
+}
+
+.logo-doc img{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.sidebar{
+    background-color: rgb(11, 88, 160);
+    color: #ffffff;
+    height: 100vh;
+}
+
+.sidebar a{
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.sidebar a.active{
+    background-color: #0e84afcf;
+    width: 100%;
+    color: #ffffff;
+}
+
+.btn-primary{
+    background-color: rgb(11, 88, 160);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover{
+    background-color: rgb(8, 66, 121);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+/* Styles pour les messages d'alerte */
+.alert {
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideIn 0.5s ease forwards;
+}
+
+.alert.show {
+    opacity: 1;
+}
+
+.alert.fade {
+    transition: opacity 0.3s linear, transform 0.3s ease;
+}
+
+.alert.fade.show {
+    transform: translateX(0);
+}
+
+/* Animation d'entrée */
+@keyframes slideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Style personnalisé pour l'alerte */
+.alert {
+    background: rgba(255, 255, 255, 0.95);
+    border-left: 4px solid;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.alert-success {
+    border-left-color: #28a745;
+}
+
+.alert-danger {
+    border-left-color: #dc3545;
+}
+
+.alert-warning {
+    border-left-color: #ffc107;
+}
+
+.alert-info {
+    border-left-color: #17a2b8;
+}
+
+.alert .fa-exclamation-circle {
+    font-size: 1.5rem;
+}
+
+.alert .alert-heading {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.alert .btn-close:focus {
+    box-shadow: none;
+}
+
+/* Animation de sortie */
+.alert.fade.hide {
+    animation: slideOut 0.5s ease forwards;
+}
+
+@keyframes slideOut {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* register docteur */
+
+.register-doctor-form {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.register-doctor-form .border-b {
+    border-bottom: 2px solid #e5e7eb;
+    background-color: #f8fafc;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.register-doctor-form h2 {
+    color: #1e40af;
+    font-size: 1.5rem;
+    margin-bottom: 0;
+}
+
+.register-doctor-form label {
+    color: #374151;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.register-doctor-form input,
+.register-doctor-form select,
+.register-doctor-form textarea {
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.register-doctor-form input:focus,
+.register-doctor-form select:focus,
+.register-doctor-form textarea:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.register-doctor-form .space-y-4 > div {
+    margin-bottom: 1.5rem;
+}
+
+.register-doctor-form .bg-gray-50 {
+    background-color: #f8fafc;
+    border: 1px solid #e5e7eb;
+}
+
+.register-doctor-form button[type="submit"] {
+    background-color: #2563eb;
+    transition: all 0.2s;
+}
+
+.register-doctor-form button[type="submit"]:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.register-doctor-form .bg-gray-50 h3 {
+    color: #1e40af;
+}
+
+.register-doctor-form input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 4px;
+}
+
+.register-doctor-form input[type="checkbox"]:checked {
+    background-color: #2563eb;
+    border-color: #2563eb;
+}
+
+@media (max-width: 768px) {
+    .register-doctor-form .grid {
+        gap: 1rem;
+    }
+    
+    .register-doctor-form .space-y-4 > div {
+        margin-bottom: 1rem;
+    }
+}
+
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+.card-title {
+    color: #2c3e50;
+    font-weight: 600;
+}
+.form-control {
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+}
+.btn-primary {
+    background-color: #3498db;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease;
+}
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+label {
+    font-weight: 500;
+    color: #34495e;
+}
+.container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 15px;
+}

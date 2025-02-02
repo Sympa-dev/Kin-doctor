@@ -1,0 +1,148 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
+        <div class="d-flex">
+            <div class="me-3">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div>
+                <h6 class="alert-heading mb-1">Message</h6>
+                <p class="mb-0">{{ message }}</p>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+{% endif %}
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-2">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fas fa-file-medical me-2"></i>
+                        <span class="fw-bold">Fiche Patient</span>
+                    </div>
+                </div>
+                <div class="card overflow-auto shadow-sm" style="max-height: 80vh;">
+                    <div class="card-body">
+                        <h4 class="mb-4 text-primary border-bottom pb-2"><i class="fas fa-user me-2"></i>Informations Personnelles</h4>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-hashtag me-2"></i>Référence:</strong> {{ patient.reference }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-user me-2"></i>Nom:</strong> {{ patient.last_name }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-user me-2"></i>Post-nom:</strong> {{ patient.middle_name }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-user me-2"></i>Prénom:</strong> {{ patient.first_name }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-venus-mars me-2"></i>Sexe:</strong> 
+                                    {% if patient.gender == 'male' %}
+                                        Homme
+                                    {% elif patient.gender == 'female' %}
+                                        Femme
+                                    {% endif %}
+                                </p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-calendar me-2"></i>Date de naissance:</strong> {{ patient.birth_date|date:"d/m/Y" }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-ring me-2"></i>État matrimonial:</strong>
+                                    {% if patient.marital_status == 'celibataire' %}
+                                        Célibataire
+                                    {% elif patient.marital_status == 'marie' %}
+                                        Marié(e)
+                                    {% elif patient.marital_status == 'divorce' %}
+                                        Divorcé(e)
+                                    {% elif patient.marital_status == 'veuf' %}
+                                        Veuf(ve)
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-phone me-2"></i>Téléphone:</strong> {{ patient.phone_number }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-envelope me-2"></i>Email:</strong> {{ patient.email_address }}</p>
+                            </div>
+                        </div>
+
+                        <h4 class="mb-4 text-primary border-bottom pb-2"><i class="fas fa-map-marker-alt me-2"></i>Adresse</h4>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-road me-2"></i>Avenue/Rue:</strong> {{ patient.street_address }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-map me-2"></i>Province:</strong> {{ patient.province }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-map-signs me-2"></i>District:</strong> {{ patient.district }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-city me-2"></i>Commune:</strong> {{ patient.municipality }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-building me-2"></i>Quartier:</strong> {{ patient.neighborhood }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-home me-2"></i>Numéro:</strong> {{ patient.house_number }}</p>
+                            </div>
+                        </div>
+
+                        <h4 class="mb-4 text-primary border-bottom pb-2"><i class="fas fa-ambulance me-2"></i>Contact d'Urgence</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-user me-2"></i>Nom:</strong> {{ patient.relative_name }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-phone me-2"></i>Téléphone:</strong> {{ patient.relative_phone }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-mobile-alt me-2"></i>Mobile:</strong> {{ patient.relative_mobile }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-road me-2"></i>Avenue/Rue:</strong> {{ patient.relative_street_address }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-map me-2"></i>Province:</strong> {{ patient.relative_province }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-map-signs me-2"></i>District:</strong> {{ patient.relative_district }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-city me-2"></i>Commune:</strong> {{ patient.relative_municipality }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-building me-2"></i>Quartier:</strong> {{ patient.relative_neighborhood }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-home me-2"></i>Numéro:</strong> {{ patient.relative_house_number }}</p>
+                            </div>
+                        </div>
+
+                        <h4 class="mb-4 text-primary border-bottom pb-2"><i class="fas fa-file-medical me-2"></i>Signes Vitaux</h4>
+                        <div class="row">
+                            {% if signes_vitaux %}
+                                {% for signe in signes_vitaux %}
+                            <div class="col-md-4">
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-heartbeat me-2"></i>Pouls:</strong> {% if signe.pulse %}{{ signe.pulse }}{% else %}Non renseigné{% endif %}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-thermometer me-2"></i>Température:</strong> {% if signe.temperature %}{{ signe.temperature }}{% else %}Non renseigné{% endif %}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-weight me-2"></i>Poids:</strong> {% if signe.weight %}{{ signe.weight }}{% else %}Non renseigné{% endif %}</p>
+                            </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <a href="{% url 'liste_patient' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <span class="fw-bold"><i class="fas fa-cog me-2"></i>Action à effectuer</span>
+                    </div>
+                </div>
+                <div class="card overflow-auto shadow-sm">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'print_patient_pdf' patient.id %}" class="btn btn-outline-primary border-2 shadow-sm">
+                                <i class="fas fa-print me-2"></i>Imprimer le dossier médical
+                            </a>
+                            <a href="{% url 'edit_patient' patient.id %}" class="btn btn-outline-info border-2 shadow-sm">
+                                <i class="fas fa-edit me-2"></i>Modifier les informations
+                            </a>
+
+                            <a href="{% url 'vitalsign' patient.id %}" class="btn btn-outline-danger border-2 shadow-sm">
+                                <i class="fas fa-sign"></i> Ajouter les signs vitaux
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

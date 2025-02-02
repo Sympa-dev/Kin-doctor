@@ -1,0 +1,62 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+    <div class="container">
+        <h3 class="text-center">Rapport du patient(e) {{ patient.last_name }} {{ patient.first_name }}</h3>
+        <hr class="my-4">
+        <div class="row">
+            <div class="col-md-6">
+                <label for="last_name">Nom et Prénoms</label>
+                <p>{{ patient.last_name }} {{ patient.first_name }}</p>
+            </div>
+            <div class="col-md-6">
+                <label for="birth_date">Date de naissance</label>
+                <p>{{ patient.birth_date|date:"d/m/Y" }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="phone_number">Téléphone</label>
+                <p>{{ patient.phone_number }}</p>
+            </div>
+            <div class="col-md-6">
+                <label for="email_address">Email</label>
+                <p>{{ patient.email_address|default:"Non renseigné" }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="address">Adresse</label>
+                <p>{{ patient.address }}</p>
+            </div>
+            <div class="col-md-6">
+                <label for="relative_name">Nom du proche</label>
+                <p>{{ patient.relative_name|default:"Non renseigné" }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="relative_phone_number">Téléphone du proche</label>
+                <p>{{ patient.relative_phone_number|default:"Non renseigné" }}</p>
+            </div>
+            <div class="col-md-6">
+                <label for="relative_address">Adresse du proche</label>
+                <p>{{ patient.relative_address|default:"Non renseigné" }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="relative_job">Profession du proche</label>
+                <p>{{ patient.relative_job|default:"Non renseigné" }}</p>
+            </div>
+            <div class="col-md-6">
+                <label for="relative_relationship">Lien avec le patient</label>
+                <p>{{ patient.relative_relationship|default:"Non renseigné" }}</p>
+            </div>
+        </div>
+        
+    </div>
+
+
+{% endblock %}

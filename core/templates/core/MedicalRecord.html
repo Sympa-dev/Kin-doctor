@@ -1,0 +1,73 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
+        <div class="d-flex">
+            <div class="me-3">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div>
+                <h6 class="alert-heading mb-1">Message</h6>
+                <p class="mb-0">{{ message }}</p>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+{% endif %}
+
+<div class="container mt-4">
+        <h3 class="text-center">Liste des dossiers médicaux</h3>
+        <hr class="my-4">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nom & Prénom</th>
+                            <th>Sexe</th>
+                            <th>Date d'enregistrement</th>
+                            <th>Numéro de dossier</th>
+                            <th>Télécharger</th>
+                            <th>Consulter</th>
+                            <th>Enregistrer une consultation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for medicalrecord in medical_record %}
+                        <tr>
+                            <td>{{ medicalrecord.patient.last_name }} {{ medicalrecord.patient.first_name }}</td>
+                            <td>{{ medicalrecord.patient.gender }}</td>
+                            <td>{{ medicalrecord.patient.birth_date|date:"d/m/Y" }}</td>
+                            <td>{{ medicalrecord.number }}</td>
+                            <td>
+                                <a href="{% url 'medicalrecord_pdf' medicalrecord.id %}" class="btn btn-light btn-sm">
+                                    Voir le fiche pdf
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'detail_medicalrecord' medicalrecord.id %}" class="btn btn-light btn-sm">
+                                    Consulter
+                                </a>
+                            </td>
+                            <td>
+                                <a href="" class="btn btn-light btn-sm">
+                                    Envoyer à une consultation
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">Aucun dossier m dical</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

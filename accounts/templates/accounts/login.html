@@ -1,0 +1,119 @@
+{% extends 'accounts/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
+        <div class="d-flex">
+            <div class="me-3">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div>
+                <h6 class="alert-heading mb-1">Message</h6>
+                <p class="mb-0">{{ message }}</p>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+{% endif %}
+
+<div class="d-flex min-vh-100">
+    <div class="flex-grow-1 d-flex flex-column p-4 p-sm-5 p-lg-6">
+        <div class="w-100 mx-auto mt-5" style="max-width: 30rem;">
+            <div class="flex-grow-1 d-flex align-items-center justify-content-center">
+                <div class="w-100" style="max-width: 30rem;">
+                    <div class="text-center mb-4">
+                        <img src="{% static 'media/doctaplus.png' %}" alt="DoctaPlus Logo" class="h-16" style="height: 4rem;">
+                    </div>
+
+                    <h2 class="mb-4 text-center fw-bold">
+                        Connectez-vous à votre espace
+                    </h2>
+
+                    <form class="mb-4" method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Nom d'utilisateur</label>
+                            <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                                   placeholder="Entrez votre nom d'utilisateur" 
+                                   name="username">
+                            {% if form.username.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.username.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4 position-relative">
+                            <label class="form-label">Mot de passe</label>
+                            <div class="position-relative">
+                                <input type="password" class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
+                                       placeholder="Entrez votre mot de passe" 
+                                       name="password">
+                                <button type="button" class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.password.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger mb-3">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <input type="hidden" name="next" value="{{ next }}">
+
+                        <button type="submit" class="btn btn-primary w-100 mt-1">
+                            <i class="fas fa-sign-in-alt me-3"></i> Se connecter
+                        </button>
+                    </form>
+
+                    <p class="text-center text-muted">
+                        Vous n'avez pas de compte ?
+                        <a href="{% url 'register' %}" class="text-decoration-none">S'inscrire</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-none d-lg-block position-relative flex-grow-1" style="flex: 1.2;">
+        <div class="position-absolute w-100 h-100 overflow-hidden" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
+            <div id="doctorCarousel" class="carousel slide h-100" data-bs-ride="carousel" data-bs-interval="000">
+                <div class="carousel-inner h-100">
+                    <div class="carousel-item active h-100">
+                        <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d" alt="Doctor caring for patient" class="w-100 h-100 object-fit-cover">
+                    </div>
+                    <div class="carousel-item h-100">
+                        <img src="https://images.unsplash.com/photo-1666214280557-f1b5022eb634" alt="Medical consultation" class="w-100 h-100 object-fit-cover">
+                    </div>
+                    <div class="carousel-item h-100">
+                        <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118" alt="Patient care" class="w-100 h-100 object-fit-cover">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#doctorCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#doctorCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

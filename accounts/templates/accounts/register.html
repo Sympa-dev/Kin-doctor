@@ -1,0 +1,146 @@
+{% extends 'accounts/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="alert alert-danger alert-dismissible fade show d-none" role="alert" id="error-alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
+    <div class="d-flex">
+        <div class="me-3">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div>
+            <h6 class="alert-heading mb-1">Erreur</h6>
+            <p class="mb-0" id="error-message"></p>
+        </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+
+<div class="d-flex min-vh-100">
+    <div class="flex-grow-1 d-flex flex-column p-4 p-sm-5 p-lg-6">
+        <div class="w-100 mx-auto" style="max-width: 30rem;">
+            <div class="flex-grow-1 d-flex align-items-center justify-content-center">
+                <div class="w-100" style="max-width: 30rem;">
+                    <!-- Messages -->
+                        {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
+                                <div class="d-flex">
+                                    <div class="me-3">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="alert-heading mb-1">Message</h6>
+                                        <p class="mb-0">{{ message }}</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                        {% endif %}
+
+                    <div class="text-center mb-4">
+                        <img src="{% static 'media/doctaplus.png' %}" alt="DoctaPlus Logo" class="h-16" style="height: 4rem;">
+                    </div>
+
+                    <h2 class="mb-4 text-center fw-bold">
+                        Créez votre compte
+                    </h2>
+
+                    <form class="mb-4" method="post" style="position: relative;top: -10px;">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label text-primary fw-semibold">Nom d'utilisateur</label>
+                            <input type="text" class="form-control border-primary" placeholder="Choisissez un nom d'utilisateur" name="username">
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label text-primary fw-semibold">Prénom</label>
+                                <input type="text" class="form-control border-primary" placeholder="Entrez votre prénom" name="first_name">
+                            </div>
+                            <div class="col">
+                                <label class="form-label text-primary fw-semibold">Nom</label>
+                                <input type="text" class="form-control border-primary" placeholder="Entrez votre nom" name="last_name">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-primary fw-semibold">Email</label>
+                            <input type="email" class="form-control border-primary" placeholder="Entrez votre email" name="email">
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label text-primary fw-semibold">Mot de passe</label>
+                                <div class="position-relative">
+                                    <input type="password" class="form-control border-primary" placeholder="mot de passe" name="password" id="password">
+                                    <button type="button" class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 text-primary" id="password-toggle">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label class="form-label text-primary fw-semibold">Confirmer le mot de passe</label>
+                                <div class="position-relative">
+                                    <input type="password" class="form-control border-primary" placeholder="Confirmez" name="password_confirm" id="password_confirm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-primary fw-semibold">Type d'utilisateur</label>
+                            <select class="form-select border-primary" name="user_type">
+                                <option value="doctor">Docteur</option>
+                                <option value="admin">Administrateur</option>
+                                <option value="nurse">Infirmier</option>
+                                <option value="pharmacist">Pharmacien</option>
+                                <option value="receptionist">Réceptionniste</option>
+                                <option value="lab_technician">Technicien de laboratoire</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 shadow-sm hover-shadow">
+                            <i class="fas fa-user-plus me-2"></i> S'inscrire
+                        </button>
+                    </form>
+
+                    <p class="text-center text-muted">
+                        Vous avez déjà un compte ?
+                        <a href="{% url 'login' %}" class="text-decoration-none">Se connecter</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-none d-lg-block position-relative flex-grow-1" style="flex: 1.2;">
+        <div class="position-absolute w-100 h-100 overflow-hidden" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
+            <div id="doctorCarousel" class="carousel slide h-100" data-bs-ride="carousel" data-bs-interval="5000">
+                <div class="carousel-inner h-100">
+                    <div class="carousel-item active h-100">
+                        <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d" alt="Doctor caring for patient" class="w-100 h-100 object-fit-cover">
+                    </div>
+                    <div class="carousel-item h-100">
+                        <img src="https://images.unsplash.com/photo-1666214280557-f1b5022eb634" alt="Medical consultation" class="w-100 h-100 object-fit-cover">
+                    </div>
+                    <div class="carousel-item h-100">
+                        <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118" alt="Patient care" class="w-100 h-100 object-fit-cover">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#doctorCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#doctorCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

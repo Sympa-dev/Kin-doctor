@@ -1,0 +1,103 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-3" style="height: 90vh; overflow-y: auto;">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Dossiers des patients</h5>
+        </div>
+        <div class="card-body">
+            <section class="mb-4">
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <a href="{% url 'render_page' 'register_patient' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-plus me-2"></i>Nouveau patient
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <form method="GET" class="d-flex">
+                            <input type="search" name="search" class="form-control" placeholder="Rechercher par nom, prénom...">
+                        </form>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select">
+                            <option value="simple">Simple</option>
+                            <option value="advanced">Avancée</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Rechercher</button>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="my-4">
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Nom</th>
+                            <th>Post-nom</th>
+                            <th>Prénom</th>
+                            <th>Sexe</th>
+                            <th>Date de naissance</th>
+                            <th>Téléphone</th>
+                            <th>Consultation</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td>{{ patient.reference }}</td>
+                            <td>{{ patient.last_name }}</td>
+                            <td>{{ patient.name|default:"-" }}</td>
+                            <td>{{ patient.first_name }}</td>
+                            <td>
+                                {% if patient.gender == 'male' %}
+                                    Homme
+                                {% elif patient.gender == 'female' %}
+                                    Femme
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>{{ patient.birth_date|date:"d/m/Y"|default:"-" }}</td>
+                            <td>{{ patient.phone_number|default:"-" }}</td>
+                            <td>
+                                {% if patient.is_consulted %}
+                                    <span class="badge bg-success">Consulté</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Non consulté</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{% url 'detail_patient' patient.id %}" class="btn btn-light btn-sm">
+                                        Voir la fiche
+                                    </a>
+                                    <div class="dropdown">
+                                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            Actions
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#">Signes vitaux</a></li>
+                                            <li><a class="dropdown-item" href="#">Consultations</a></li>
+                                            <li><a class="dropdown-item" href="#">Antécédents</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

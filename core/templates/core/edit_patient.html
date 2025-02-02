@@ -1,0 +1,136 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-3" style="height: 90vh; overflow-y: auto;">
+    <div class="card">
+        <div class="card-body py-4">
+            <form method="POST" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <!-- Informations personnelles -->
+                <section class="mb-4">
+                    <h4 class="mb-2">Information sur le patient(e)</h4>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Nom</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ patient.last_name }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Post-nom</label>
+                            <input type="text" name="middle_name" class="form-control" value="{{ patient.middle_name }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Prénom</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ patient.first_name }}" required>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label class="form-label">Genre</label>
+                            <select name="gender" class="form-select" required>
+                                <option value="">Sélectionner</option>
+                                <option value="male" {% if patient.gender == 'male' %}selected{% endif %}>Homme</option>
+                                <option value="female" {% if patient.gender == 'female' %}selected{% endif %}>Femme</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Date de naissance</label>
+                            <input type="date" name="birth_date" class="form-control" value="{{ patient.birth_date|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Téléphone</label>
+                            <input type="tel" name="phone_number" class="form-control" value="{{ patient.phone_number }}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email_address" class="form-control" value="{{ patient.email_address }}">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">État matrimonial</label>
+                            <select name="marital_status" class="form-select" required>
+                                <option value="">Sélectionner</option>
+                                <option value="celibataire" {% if patient.marital_status == 'celibataire' %}selected{% endif %}>Célibataire</option>
+                                <option value="marie" {% if patient.marital_status == 'marie' %}selected{% endif %}>Marié(e)</option>
+                                <option value="divorce" {% if patient.marital_status == 'divorce' %}selected{% endif %}>Divorcé(e)</option>
+                                <option value="veuf" {% if patient.marital_status == 'veuf' %}selected{% endif %}>Veuf(ve)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Occupation</label>
+                            <input type="text" name="occupation" class="form-control" value="{{ patient.occupation }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Nationalité</label>
+                            <select name="nationality" class="form-select" required>
+                                <option value="">Sélectionner</option>
+                                <option value="congolaise" {% if patient.nationality == 'congolaise' %}selected{% endif %}>Congolaise</option>
+                                <option value="autre" {% if patient.nationality == 'autre' %}selected{% endif %}>Autre</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Adresse -->
+                <section class="mb-4">
+                    <h4 class="mb-2">Adresse du domicile</h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Province</label>
+                            <select name="province" class="form-select" required>
+                                <option value="">Sélectionner une province</option>
+                                <option value="kinshasa" {% if patient.province == 'kinshasa' %}selected{% endif %}>Kinshasa</option>
+                                <option value="kongo-central" {% if patient.province == 'kongo-central' %}selected{% endif %}>Kongo Central</option>
+                                <option value="kwango" {% if patient.province == 'kwango' %}selected{% endif %}>Kwango</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">District</label>
+                            <select name="district" class="form-select" required>
+                                <option value="">Sélectionner un district</option>
+                                <option value="{{ patient.district }}" selected>{{ patient.district }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Commune</label>
+                            <select name="municipality" class="form-select" required>
+                                <option value="">Sélectionner une commune</option>
+                                <option value="{{ patient.municipality }}" selected>{{ patient.municipality }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Quartier</label>
+                            <select name="neighborhood" class="form-select" required>
+                                <option value="">Sélectionner un quartier</option>
+                                <option value="{{ patient.neighborhood }}" selected>{{ patient.neighborhood }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Numéro</label>
+                            <input type="text" name="house_number" class="form-control" value="{{ patient.house_number }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Avenue/Rue</label>
+                            <input type="text" name="street_address" class="form-control" value="{{ patient.street_address }}" required>
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="my-4">
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                    </button>
+                    <a href="{% url 'detail_patient' patient.id %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
+            <div class="d-flex">
+                <div class="me-3">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div>
+                    <h6 class="alert-heading mb-1">Message</h6>
+                    <p class="mb-0">{{ message }}</p>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-file-medical me-2"></i>Détails de l'Examen</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Informations de l'Examen</h6>
+                            <hr>
+                            <p><strong>Type d'examen:</strong> {{ examen.exam_type.name }}</p>
+                            <p><strong>Date prévue:</strong> {{ examen.exam_date|date:"d/m/Y" }}</p>
+                            <p><strong>Statut:</strong> 
+                                <span class="badge {% if examen.status == 'completed' %}bg-success{% elif examen.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ examen.get_status_display }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Informations de la Consultation</h6>
+                            <hr>
+                            <p><strong>Médecin:</strong> {{ examen.consultation.doctor.first_name }} {{ examen.consultation.doctor.last_name }}</p>
+                            <p><strong>Spécialité:</strong> {{ examen.consultation.specialty.name }}</p>
+                            <p><strong>Date consultation:</strong> {{ examen.consultation.consultation_date|date:"d/m/Y" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-muted">Informations du Patient</h6>
+                            <hr>
+                            <p><strong>Nom complet:</strong> {{ examen.consultation.patient.last_name }} {{ examen.consultation.patient.first_name }}</p>
+                            <p><strong>Date de naissance:</strong> {{ examen.consultation.patient.birth_date|date:"d/m/Y" }}</p>
+                            <p><strong>Téléphone:</strong> {{ examen.consultation.patient.phone_number }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-2">
+                <div class="card-header">
+                    <span class="fw-bold"><i class="fas fa-cog me-2"></i>Actions</span>
+                </div>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'print_examen_pdf' examen.id %}" class="btn btn-outline-primary border-2 shadow-sm">
+                            <i class="fas fa-print me-2"></i>Imprimer le rapport d'examen
+                        </a>
+                        <a href="#" class="btn btn-outline-info border-2 shadow-sm">
+                            <i class="fas fa-edit me-2"></i>Modifier l'examen
+                        </a>
+                        <a href="{% url 'detail_consultation' examen.consultation.id %}" class="btn btn-outline-secondary border-2 shadow-sm">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à la consultation
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

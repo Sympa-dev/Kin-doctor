@@ -1,0 +1,127 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
+        <div class="d-flex">
+            <div class="me-3">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div>
+                <h6 class="alert-heading mb-1">Message</h6>
+                <p class="mb-0">{{ message }}</p>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+{% endif %}
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-2">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fas fa-calendar-plus me-2"></i>
+                        <span class="fw-bold">Planifier une consultation</span>
+                    </div>
+                </div>
+                <div class="card shadow-sm">
+                    <div class="card-body overflow-auto" style="max-height: 70vh;">
+                        <form method="POST" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-calendar me-2"></i>Date de consultation</label>
+                                    <input type="date" name="consultation_date" class="form-control" required>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-stethoscope me-2"></i>Type de consultation</label>
+                                    <select name="consultation_type" class="form-select" required>
+                                        {% for consultation_type in consultation_types %}
+                                            <option value="{{ consultation_type.id }}">{{ consultation_type.name|default:"Consultation générale" }}</option>
+                                        {% empty %}
+                                            <option value="">Aucun type de consultation disponible</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-clinic-medical me-2"></i>Spécialité</label>
+                                    <select name="specialty" class="form-select" required>
+                                        {% for specialty in specialties %}
+                                            <option value="{{ specialty.id }}">{{ specialty.name }}</option>
+                                        {% empty %}
+                                            <option value="">Aucune spécialité disponible</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-user-md me-2"></i>Médecin</label>
+                                    <select name="doctor" class="form-select" required>
+                                        <option value="">Sélectionner un médecin</option>
+                                        {% for doc in doctors %}
+                                            <option value="{{ doc.id }}">{{ doc.name }} {{ doc.first_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-users me-2"></i>Patient</label>
+                                    <select name="patient" class="form-select" required>
+                                        <option value="">Sélectionner un patient</option>
+                                        {% for patient in patients %}
+                                            <option value="{{ patient.id }}">{{ patient.name }} {{ patient.first_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Planifier la consultation
+                                </button>
+                               
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header">
+                        <span class="fw-bold"><i class="fas fa-user-md me-2"></i>Patient(s) consulté(s)</span>
+                        <span class="badge rounded-pill bg-primary float-end">{{ consulted|length }}</span>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for consul in consulted %}
+                            <li class="list-group-item">{{ consul.last_name }} {{ consul.first_name }}</li>
+                        {% empty %}
+                            <li class="list-group-item">Aucun patient consulté</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header">
+                        <span class="fw-bold"><i class="fas fa-user-md me-2"></i>Patient(s) non consulté(s)</span>
+                        <span class="badge rounded-pill bg-danger float-end">{{ not_consulted|length }}</span>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for patient in not_consulted %}
+                            <li class="list-group-item">{{ patient.name }} {{ patient.first_name }} {{ patient.last_name }} </li>
+                        {% empty %}
+                            <li class="list-group-item">Aucun patient déjà consulté</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

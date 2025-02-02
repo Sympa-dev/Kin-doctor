@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
+        <div class="d-flex">
+            <div class="me-3">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div>
+                <h6 class="alert-heading mb-1">Message</h6>
+                <p class="mb-0">{{ message }}</p>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+{% endif %}
+
+    <div class="container mt-3">
+        <h3 class="text-center my-4">Détails du dossier médical</h3>
+        <hr class="my-4">
+        <div class="row">
+            <div class="col-md-6">
+                <a href="{% url 'medicalrecord' %}" class="btn btn-secondary mb-3"><i class="fas fa-arrow-left me-2"></i>Retour à la liste des dossiers médicaux</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <i class="fas fa-file-medical me-2"></i>Informations du dossier
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Numéro de dossier: {{ medical_record.number }}</h5>
+                        <p class="card-text"><strong>Patient:</strong> {{ medical_record.patient.first_name }} {{ medical_record.patient.last_name }}</p>
+                        <p class="card-text"><strong>Date d'enregistrement:</strong> {{ medical_record.created_at|date:"d/m/Y H:i" }}</p>
+                        <p class="card-text"><strong>Dernière modification:</strong> {{ medical_record.updated_at|date:"d/m/Y H:i" }}</p>
+                        <p class="card-text">
+                            <strong>Consultations:</strong>
+                            {% for consultation in medicalrecord.consultation_set.all %}
+                                <a href="{% url 'detail_consultation' consultation.id %}" class="badge bg-secondary text-decoration-none">{{ consultation.type }} - {{ consultation.consultation_date|date:"d/m/Y" }}</a>
+                            {% empty %}
+                                Aucune consultation
+                            {% endfor %}
+                        </p>
+                        <a class="btn btn-sm btn-oultline-primary" href="{% url 'create_patient_file_from_model' medical_record.id %}">
+                            <i class="fas fa-downloas"></i>
+                            Télécharger le fichier pdf
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <i class="fas fa-file-prescription me-2"></i>Examens médicaux
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            {% for examen in medicalrecord.examen_set.all %}
+                                {{ examen.name }} - {{ examen.date|date:"d/m/Y" }}<br>
+                            {% empty %}
+                                Aucun examen médical
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-2">
+                    <div class="card-header">
+                        <i class="fas fa-laptop me-2"></i>Rapport du Laboratoire
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            {% for examen in medicalrecord.examen_set.all %}
+                                {{ examen.name }} - {{ examen.date|date:"d/m/Y" }}<br>
+                            {% empty %}
+                                Aucun rapport du labo
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+{% endblock %}

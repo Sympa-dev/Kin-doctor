@@ -1,0 +1,79 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-2">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div>
+                            <i class="fas fa-calendar-check me-2"></i>
+                            <span class="fw-bold">Liste des Consultations</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        {% if consultations %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-hashtag me-2"></i>Référence Patient</th>
+                                            <th><i class="fas fa-user me-2"></i>Patient</th>
+                                            <th><i class="fas fa-user-md me-2"></i>Médecin</th>
+                                            <th><i class="fas fa-stethoscope me-2"></i>Type</th>
+                                            <th><i class="fas fa-calendar-alt me-2"></i>Date</th>
+                                            <th><i class="fas fa-clock me-2"></i>Heure</th>
+                                            <th><i class="fas fa-info-circle me-2"></i>Statut</th>
+                                            <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for consultation in consultations %}
+                                            <tr>
+                                                <td>{{ consultation.patient.reference }}</td>
+                                                <td>{{ consultation.patient.last_name }} {{ consultation.patient.first_name }}</td>
+                                                <td>{{ consultation.doctor.name }} {{ consultation.doctor.first_name }}</td>
+                                                <td>{{ consultation.type.name }}</td>
+                                                <td>{{ consultation.consultation_date|date:"d/m/Y" }}</td>
+                                                <td>{{ consultation.consultation_date|time:"H:i" }}</td>
+                                                <td>
+                                                    {% if consultation.status == 'En attente de consultation' %}
+                                                        <span class="badge bg-warning text-dark">Planifiée</span>
+                                                    {% elif consultation.status == 'Consultation terminée' %}
+                                                        <span class="badge bg-success">Terminée</span>
+                                                    {% elif consultation.status == 'Consultation annulée' %}
+                                                        <span class="badge bg-danger">Annulée</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <a href="{% url 'detail_consultation' consultation.id %}" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <a href="{% url 'edit_consultation' consultation.id %}" class="btn btn-sm btn-outline-warning">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <a href="{% url 'patient_consultation' consultation.id %}" class="btn btn-sm btn-outline-danger">
+                                                            <i class="fas fa-stethoscope"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Aucune consultation n'est planifiée pour le moment.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

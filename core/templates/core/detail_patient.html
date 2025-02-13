@@ -36,7 +36,7 @@
                             <div class="col-md-6">
                                 <p class="mb-2"><strong class="text-secondary"><i class="fas fa-hashtag me-2"></i>Référence:</strong> {{ patient.reference }}</p>
                                 <p class="mb-2"><strong class="text-secondary"><i class="fas fa-user me-2"></i>Nom:</strong> {{ patient.last_name }}</p>
-                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-user me-2"></i>Post-nom:</strong> {{ patient.middle_name }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-user me-2"></i>Post-nom:</strong> {{ patient.name }}</p>
                                 <p class="mb-2"><strong class="text-secondary"><i class="fas fa-user me-2"></i>Prénom:</strong> {{ patient.first_name }}</p>
                                 <p class="mb-2"><strong class="text-secondary"><i class="fas fa-venus-mars me-2"></i>Sexe:</strong> 
                                     {% if patient.gender == 'male' %}
@@ -60,7 +60,7 @@
                             </div>
                             <div class="col-md-6">
                                 <p class="mb-2"><strong class="text-secondary"><i class="fas fa-phone me-2"></i>Téléphone:</strong> {{ patient.phone_number }}</p>
-                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-envelope me-2"></i>Email:</strong> {{ patient.email_address }}</p>
+                                <p class="mb-2"><strong class="text-secondary"><i class="fas fa-envelope me-2"></i>Email:</strong> {{ patient.email }}</p>
                             </div>
                         </div>
 

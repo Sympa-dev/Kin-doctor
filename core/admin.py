@@ -18,6 +18,7 @@ admin.site.register(Examen)
 admin.site.register(ExamenType)
 admin.site.register(VitalSigns)
 admin.site.register(MedicalRecord)
+admin.site.register(Appoitement)
 
 
 

@@ -467,3 +467,18 @@ class MedicalRecord(models.Model):
 
     def __str__(self):
         return f"Dossier Médical de {self.patient}"
+
+class Appoitement(models.Model):
+    patient = models.ForeignKey(Patients, on_delete=models.CASCADE, related_name="patient")
+    doctor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date = models.DateField()
+    time = models.TimeField(null=True, blank=True)
+    statut = models.CharField(
+        max_length=20,
+        choices=[('En attente', 'En attente'), ('Confirmé', 'Confirmé'), ('Annulé', 'Annulé')],
+        default='En attente'
+    )
+    note = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.patient.user.get_full_name()} - {self.doctor.user.get_full_name()} ({self.date})"

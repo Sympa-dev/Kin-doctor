@@ -100,6 +100,7 @@ def render_page(request, page):
                         return render(request, template_name, context)
 
                     # Récupérer le département de manière sécurisée
+
                     try:
                         department = Department.objects.get(id=department_id)
                     except Department.DoesNotExist:
@@ -243,7 +244,7 @@ def edit_patient(request, id):
 
         if request.method == 'POST':
             patient.first_name = request.POST.get('first_name')
-            patient.middle_name = request.POST.get('middle_name') 
+            patient.middle_name = request.POST.get('name') 
             patient.last_name = request.POST.get('last_name')
             patient.gender = request.POST.get('gender')
             patient.birth_date = request.POST.get('birth_date')
@@ -609,6 +610,7 @@ def patient_consultation(request, id):
         consultation.diagnosis = request.POST.get('diagnosis')
         consultation.notes = request.POST.get('notes')
         consultation.status = request.POST.get('status')
+
         consultation.save()
 
         messages.success(request, "Consultation mise à jour avec succès.")
@@ -689,7 +691,9 @@ def inscription_patient(request, *args, **kwargs):
     return render(request, 'core/inscription_patient.html', context)
 
 def vitalsign(request, id):
+
     # Récupérer le patient ou renvoyer une erreur 404 si non trouvé
+
     patient = get_object_or_404(Patients, id=id)
     sign_vital = VitalSigns.objects.filter(patient=patient).select_related('patient').first()
 
@@ -1070,10 +1074,12 @@ def registered(request):
             return redirect('registered')
 
         # Générer un mot de passe aléatoire
+        
         password = generate_password()
         hashed_password = make_password(password)
 
         # Créer un utilisateur avec tous les rôles à False par défaut
+
         user = User.objects.create(
             username=username,
             email=email,
@@ -1090,10 +1096,12 @@ def registered(request):
         )
 
         # Activer uniquement le champ correspondant au rôle choisi
+
         setattr(user, boolean_fields[user_type], True)
         user.save()
 
         # Envoyer un email avec le mot de passe temporaire
+
         try:
             send_mail(
                 'Votre compte a été créé',
@@ -1155,6 +1163,42 @@ def change_password(request):
             return redirect('dashboard')
 
     return render(request, 'change_password.html')
+
+
+def appoitement(request):
+    return render(request, "core/rdv.html")
+
+def plan_appoint(request):
+
+    patients = Patients.objects.all()
+    doctors = User.objects.filter(is_doctor=True)
+
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        time = request.POST.get('time')
+        patient_id = request.POST.get('patient')
+        doctor_id = request.POST.get('doctor')
+        
+        patient = Patients.objects.get(id=patient_id)
+
+        if not patient:
+            messages.error(request, "Le patient sélectionné n'existe pas !")
+            return redirect("plan_appoint")
+
+        doctor = User.objects.filter(id=doctor_id, is_doctor=True).first()
+
+        if not doctor:
+            messages.error(request, "Le médecin sélectionné n'existe pas")
+            return redirect("plan_appoint")
+        
+        Appoitement.objects.create(date=date, time=time, patient=patient, doctor=doctor)
+        messages.success(request, "Rendez-vous est reservé avec succès !")
+    
+    context = {
+        "patients": patients,
+        "doctors": doctors
+    }
+    return render(request, "core/plan_rdv.html", context)
 
 
 

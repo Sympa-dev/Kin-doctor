@@ -28,14 +28,6 @@ class DoctorSerializer(serializers.ModelSerializer):
         model = Doctor
         fields = '__all__'
 
-class PatientSerializer(serializers.ModelSerializer):
-    insurance_company = CompanySerializer(read_only=True)
-    conventioned_company = CompanySerializer(read_only=True)
-    
-    class Meta:
-        model = Patient
-        fields = '__all__'
-
 class ConsultationTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConsultationType

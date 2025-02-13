@@ -13,7 +13,6 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
 
-
 # Create your views here.
 @api_view(['POST', 'GET'])
 @permission_classes([AllowAny])
@@ -63,6 +62,7 @@ def register(request):
                 })
 
             # Check if username already exists
+
             if User.objects.filter(username=username).exists():
                 return render(request, 'accounts/register.html', {
                     'messages': ['Ce nom d\'utilisateur est déjà pris'],
@@ -119,11 +119,11 @@ def register(request):
                 'lab_technician': 'is_laboratory_technician',
                 'admin': 'is_admin'
             }
-            
+    
             # Reset all fields to False
             for field in boolean_fields.values():
                 setattr(user, field, False)
-            
+    
             # Set corresponding field to True
             setattr(user, boolean_fields[user_type], True)
             
@@ -132,7 +132,7 @@ def register(request):
 
             messages.success(request, 'Votre compte a été créé avec succès. Veuillez vous connecter.')
             return redirect('login')
-        
+
         except ValidationError as e:
             return render(request, 'accounts/register.html', {
                 'messages': ['Erreur de validation: ' + str(e)],
@@ -150,7 +150,7 @@ def register(request):
                 'messages': ['Une erreur inattendue s\'est produite'],
                 'message_tags': ['danger']
             })
-    
+
     elif request.method == 'GET':
         return render(request, 'accounts/register.html', {
             'user_types': [
@@ -162,7 +162,7 @@ def register(request):
                 {'value': 'admin', 'label': 'Administrateur'}
             ]
         })
-    
+
 @api_view(['POST', 'GET'])
 @permission_classes([AllowAny])
 def login_view(request):
@@ -224,6 +224,11 @@ def login_view(request):
         return render(request, 'accounts/login.html')
 
     except Exception as e:
+        """
+        Gestion des erreurs inattendues
+        :param e: L'exception levée
+        :type e: Exception
+        """
         print(f"Erreur de connexion: {str(e)}")
         return Response({
             'error': 'Une erreur inattendue s\'est produite'

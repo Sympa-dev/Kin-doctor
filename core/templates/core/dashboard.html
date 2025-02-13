@@ -2,8 +2,6 @@
 
 {% block content %}
 
-
-
 {% if messages %}
 {% for message in messages %}
     <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
@@ -25,7 +23,7 @@
 <div class="container-fluid py-3 mt-2">
     <div class="space-y-4">
         <!-- Header -->
-        <header class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3 mb-3">
+        <header class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 mb-3">
             <h1 class="h4 fw-bold mb-0">Tableau de bord</h1>
             <div class="d-flex flex-wrap justify-content-center gap-2">
                 <button class="btn btn-primary px-2 py-1">Aujourd'hui</button>

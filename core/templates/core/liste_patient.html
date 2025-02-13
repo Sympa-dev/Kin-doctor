@@ -2,21 +2,22 @@
 
 {% block content %}
 
-<div class="container-fluid py-3" style="height: 90vh; overflow-y: auto;">
+<div class="container mt-3" style="height: 90vh; overflow-y: auto;">
     <div class="card">
         <div class="card-header">
-            <h5 class="card-title mb-0">Dossiers des patients</h5>
+            <h5 class="card-title mb-0">Liste des patients</h5>
         </div>
         <div class="card-body">
             <section class="mb-4">
                 <div class="row g-3">
                     <div class="col-md-2">
-                        <a href="{% url 'render_page' 'register_patient' %}" class="btn btn-primary w-100">
-                            <i class="fas fa-plus me-2"></i>Nouveau patient
+                        <a href="{% url 'inscription_patient' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-plus"></i>Nouveau patient
                         </a>
                     </div>
+
                     <div class="col-md-6">
-                        <form method="GET" class="d-flex">
+                        <form method="post" class="d-flex">
                             <input type="search" name="search" class="form-control" placeholder="Rechercher par nom, prénom...">
                         </form>
                     </div>

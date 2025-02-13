@@ -1,0 +1,76 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
+        <div class="d-flex">
+            <div class="me-3">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div>
+                <h6 class="alert-heading mb-1">Message</h6>
+                <p class="mb-0">{{ message }}</p>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+{% endif %}
+
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card py-1 px-2">
+                    <span><i class="fas fa-calendar-check"></i> Planifier le rendez-vous avec le medecin</span>
+                </div>
+
+                <div class="card py-2 px-3 mt-2">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                    <div class="row">
+                        <div class="col">
+                            <input type="date" class="form-control" name="date" id="">
+                        </div>
+                        <div class="col">
+                            <input type="time" class="form-control" name="time" id="">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col">
+                            <label for="medecinselect"><i class="fas fa-user-md"></i> Choisissez un medecin</label>
+                            <select class="form-select" name="doctor" id="medecinselect">
+                                <option value="">Choisir le medecin</option>
+                                {% for doctor in doctors %}
+                                    <option value="{{ doctor.id }}">{{ doctor.name }} {{ doctor.first_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="medecinselect"><i class="fas fa-users"></i> Choisissez le patient concerné</label>
+                            <select class="form-select" name="patient" id="medecinselect">
+                                <option value="">Choisir un patient</option>
+                                {% for patient in patients %}
+                                    <option value="{{ patient.id }}">{{ patient.name }} {{ patient.first_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col mt-3">
+                        <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-arrow-circle-right"></i> Reserver</button>
+                    </div>
+                </form>
+                </div>
+
+                <!-- others -->
+
+                <div class="card py-1 px-2 mt-2">
+                    <span><i class="fas fa-list-alt"></i> Rendez-vous en attente</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

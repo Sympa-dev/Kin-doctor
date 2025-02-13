@@ -167,8 +167,3 @@ class User(AbstractUser):
         if not isinstance(perm_list, Iterable) or isinstance(perm_list, str):
             raise ValueError("perm_list must be an iterable of permissions.")
         return all(self.has_perm(perm, obj) for perm in perm_list)
-
-class profil_doctor(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="doctor_profil")
-    adresse = models.TextField()
-    phone =n 

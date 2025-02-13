@@ -14,8 +14,10 @@ body{
 }
 
 .logo-doc{
-    width: 150px;
+    width: 350px;
     height: 50px;
+    position: relative;
+    top: 5px;
 }
 
 .logo-doc img{
@@ -25,7 +27,7 @@ body{
 }
 
 .sidebar{
-    background-color: rgb(11, 88, 160);
+    background-color: rgb(3, 120, 93);
     color: #ffffff;
     height: 100vh;
 }
@@ -71,18 +73,6 @@ body{
 
 .alert.fade.show {
     transform: translateX(0);
-}
-
-/* Animation d'entrée */
-@keyframes slideIn {
-    0% {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    100% {
-        opacity: 1;
-        transform: translateX(0);
-    }
 }
 
 /* Style personnalisé pour l'alerte */
@@ -226,15 +216,10 @@ body{
 
 
 .card {
-    border: none;
-    border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
+
 .card-title {
     color: #2c3e50;
     font-weight: 600;
@@ -264,7 +249,6 @@ label {
     color: #34495e;
 }
 .container {
-    background-color: #f8f9fa;
     padding: 20px;
     border-radius: 15px;
 }

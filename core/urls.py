@@ -24,6 +24,7 @@ urlpatterns = [
 
    path('inscription_patient/', inscription_patient, name='inscription_patient'),
    path('liste_patient/', liste_patient, name='liste_patient'),
+   path('recherche_patient/', recherche_patient, name="recherche_patient"),
    path('vitalsign/<int:id>/', vitalsign, name="vitalsign"),
    path('edit_sign_vital/<int:id>/', edit_sign_vital, name='edit_sign_vital'),
    path('save_patient/<int:id>/', save_patient, name="save_patient"),

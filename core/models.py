@@ -29,9 +29,8 @@ COMPANY_TYPES = (
 )
 
 GENDER_CHOICES = (
-    ('male', 'Male'),
-    ('female', 'Female'),
-    ('other', 'Other'),
+    ('H', 'Homme'),
+    ('F', 'Femme'),
 )
 
 ROLES = (
@@ -78,11 +77,8 @@ class Company(models.Model):
     def __str__(self):
         return self.company_name
 
-
 class Department(models.Model):
     name = models.CharField(max_length=255)
-    description = models.TextField(null=True, blank=True)
-    care_type = models.TextField(null=True, blank=True)
     slug = models.SlugField(unique=True, null=True, blank=True)
     reference = models.CharField(max_length=255, unique=True, editable=False, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -180,17 +176,11 @@ class Patients(models.Model):
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
     phone_number = models.CharField(max_length=20, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
-    json_data = models.TextField(null=True, blank=True)
     reference = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
     # Personal Information
     status = models.CharField(max_length=10, choices=MERITAL_STATUS, null=True, blank=True)
     occupation = models.CharField(max_length=255, null=True, blank=True)
-    has_insurance = models.BooleanField(default=False)
-    is_conventioned = models.BooleanField(default=True)
-    insurance_provider = models.CharField(max_length=255, null=True, blank=True)
-    convention_provider = models.CharField(max_length=255, null=True, blank=True)
     nationality = models.CharField(max_length=255, null=True, blank=True)
 
     consultation_status = models.CharField(max_length=255, choices=CONSULTATION_STATUS, default="En attente de consultation")
@@ -198,8 +188,7 @@ class Patients(models.Model):
     # Emergency Contact Information
     relative_name = models.CharField(max_length=255, null=True, blank=True)
     relative_phone = models.CharField(max_length=20, null=True, blank=True)
-    relative_mobile = models.CharField(max_length=20, null=True, blank=True)
-    relative_same_address = models.BooleanField(default=False)
+    relative_address = models.TextField(default=False)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -304,7 +293,7 @@ class Consultation(models.Model):
     patient = models.ForeignKey(Patients, on_delete=models.CASCADE, related_name="consultations")
     symptoms = models.TextField(null=True, blank=True)
     diagnosis = models.TextField(null=True, blank=True)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="consultations", null=True, blank=True)
+    doctor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     specialty = models.ForeignKey(Specialty, on_delete=models.CASCADE, related_name="consultations", null=True, blank=True)
     consultation_date = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=50, choices=CONSULTATION_STATUS, default='En attente de consultation')

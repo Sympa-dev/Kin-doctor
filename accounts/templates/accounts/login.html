@@ -27,12 +27,12 @@
             <div class="flex-grow-1 d-flex align-items-center justify-content-center">
                 <div class="w-100" style="max-width: 30rem;">
                     <div class="text-center mb-4">
-                        <h1 style="background-color: rgb(11, 88, 160);color: white;border-radius: 15px;">e-Health Kinshasa</h1>
+                        <img src="{% static 'media/log-kin.png' %}" alt="DoctaPlus Logo" class="h-16" style="height: 4rem;">
                     </div>
 
-                    <h2 class="mb-4 text-center fw-bold">
+                    <h4 class="mb-4 text-center fw-bold">
                         Connectez-vous à votre espace
-                    </h2>
+                    </h4>
 
                     <form class="mb-4" method="post">
                         {% csrf_token %}

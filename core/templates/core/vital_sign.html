@@ -27,59 +27,61 @@
             <form method="POST" class="needs-validation" novalidate style="overflow-y: scroll; height: 450px;">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="vitals_form">
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <label for="temperature">Température </label>
+                            <input type="number" step="0.1" class="form-control" placeholder="en (°C)" id="temperature" name="temperature" value="{{ vital_signs.temperature }}">
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <label for="blood_pressure_systolic">Pression artérielle </label>
+                            <input type="number" class="form-control" placeholder="(systolique)" id="blood_pressure_systolic" name="blood_pressure_systolic" value="{{ vital_signs.blood_pressure_systolic }}">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="temperature">Température (°C)</label>
-                            <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" value="{{ vital_signs.temperature }}">
+                            <label for="blood_pressure_diastolic">Pression artérielle </label>
+                            <input type="number" class="form-control" placeholder="(diastolique)" id="blood_pressure_diastolic" name="blood_pressure_diastolic" value="{{ vital_signs.blood_pressure_diastolic }}">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="blood_pressure_systolic">Pression artérielle (systolique)</label>
-                            <input type="number" class="form-control" id="blood_pressure_systolic" name="blood_pressure_systolic" value="{{ vital_signs.blood_pressure_systolic }}">
+                            <label for="pulse">Pouls</label>
+                            <input type="number" class="form-control" placeholder="(bpm)" id="pulse" name="pulse" value="{{ vital_signs.pulse }}">
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="blood_pressure_diastolic">Pression artérielle (diastolique)</label>
-                            <input type="number" class="form-control" id="blood_pressure_diastolic" name="blood_pressure_diastolic" value="{{ vital_signs.blood_pressure_diastolic }}">
+                            <label for="respiratory_rate">Fréquence respiratoire </label>
+                            <input type="number" class="form-control" placeholder="(resp/min)" id="respiratory_rate" name="respiratory_rate" value="{{ vital_signs.respiratory_rate }}">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="pulse">Pouls (bpm)</label>
-                            <input type="number" class="form-control" id="pulse" name="pulse" value="{{ vital_signs.pulse }}">
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="respiratory_rate">Fréquence respiratoire (resp/min)</label>
-                            <input type="number" class="form-control" id="respiratory_rate" name="respiratory_rate" value="{{ vital_signs.respiratory_rate }}">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="oxygen_saturation">Saturation en O2 (%)</label>
-                            <input type="number" step="0.1" class="form-control" id="oxygen_saturation" name="oxygen_saturation" value="{{ vital_signs.oxygen_saturation }}">
+                            <label for="oxygen_saturation">Saturation </label>
+                            <input type="number" step="0.1" class="form-control" placeholder="en O2 (%)" id="oxygen_saturation" name="oxygen_saturation" value="{{ vital_signs.oxygen_saturation }}">
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="weight">Poids (kg)</label>
-                            <input type="number" step="0.1" class="form-control" id="weight" name="weight" value="{{ vital_signs.weight }}">
+                            <label for="weight">Poids</label>
+                            <input type="number" step="0.1" class="form-control" placeholder="en (kg)" id="weight" name="weight" value="{{ vital_signs.weight }}">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="height">Taille (cm)</label>
-                            <input type="number" class="form-control" id="height" name="height" value="{{ vital_signs.height }}">
+                            <label for="height">Taille </label>
+                            <input type="number" class="form-control" placeholder="en (cm)" id="height" name="height" value="{{ vital_signs.height }}">
                         </div>
                     </div>
                 </div>
@@ -92,48 +94,28 @@
 
         <div class="col-md-6">
             <div class="card py-2 px-3 shadow-sm">
-                <h5 class="card-title mb-4">Information sur le patient</h5>
+                <h6 class="card-title mb-4">Information sur le patient</h6>
                 <div class="row">
                     <div class="col-md-6">
                         <label for="last_name"><i class="fas fa-user me-2"></i>Nom et Prénoms</label>
-                        <p>{{ patient.last_name }} {{ patient.first_name }}</p>
+                        <p>{{ patient.first_name }} {{ patient.name }}</p>
                     </div>
                     <div class="col-md-6">
                         <label for="birth_date"><i class="fas fa-calendar me-2"></i>Date de naissance</label>
-                        <p>{{ patient.birth_date|date:"d/m/Y" }}</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <label for="phone_number"><i class="fas fa-phone me-2"></i>Téléphone</label>
-                        <p>{{ patient.phone_number }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="email_address"><i class="fas fa-envelope me-2"></i>Email</label>
-                        <p>{{ patient.email_address|default:"Non renseigné" }}</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <label for="nationality"><i class="fas fa-flag me-2"></i>Nationalité</label>
-                        <p>{{ patient.nationality|default:"Non renseigné" }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="street_address"><i class="fas fa-map-marker-alt me-2"></i>Adresse</label>
-                        <p>{% if patient.street_address and patient.province and patient.city %}{{ patient.street_address }}, {{ patient.province }}, {{ patient.city }}{% else %}Adresse non renseignée{% endif %}</p>
+                        <p>{{ patient.birth_date }}</p>
                     </div>
                 </div>
 
                 <!-- sign vitaux -->
 
-                <h5 class="card-title mb-4">Signes vitaux</h5>
+                <h6 class="card-title mb-4">Signes vitaux du patient numéro {{ patient.reference }}</h6>
 
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped table-hover">
                         <thead>
                             <tr>
-                                <th>Température</th>
-                                <th>Pression artérielle</th>
+                                <th>Temp</th>
+                                <th>Pression art</th>
                                 <th>Pouls</th>
                                 <th>Poids</th>
                                 <th>Hauteur</th>
@@ -166,13 +148,7 @@
                         <form method="post" enctype="multipart/form-data" action="{% url 'save_patient' patient.id %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-outline-success">
-                                <i class="fas fa-save me-1"></i>Enregistrer
-                            </button>
-                        </form>
-
-                        <form action="">
-                            <button type="submit" class="btn btn-sm btn-outline-info">
-                                <i class="fas fa-edit me-1"></i>Modifier
+                                <i class="fas fa-save me-1"></i>Enregistrer dans le dossier du patient
                             </button>
                         </form>
                     </div>

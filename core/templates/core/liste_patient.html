@@ -11,25 +11,25 @@
             <section class="mb-4">
                 <div class="row g-3">
                     <div class="col-md-2">
-                        <a href="{% url 'inscription_patient' %}" class="btn btn-primary w-100">
-                            <i class="fas fa-plus"></i>Nouveau patient
+                        <a href="{% url 'inscription_patient' %}" class="btn btn-sm btn-primary w-100">
+                            <i class="fas fa-plus"></i> Patient
                         </a>
                     </div>
 
-                    <div class="col-md-6">
-                        <form method="post" class="d-flex">
-                            <input type="search" name="search" class="form-control" placeholder="Rechercher par nom, prénom...">
+                    <div class="col-md-8">
+
+                        <form action="{% url 'recherche_patient' %}" method="post">
+                            {% csrf_token %}
+                           <div class="input-group">
+                                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Rechercher un patient par son nom">
+                                <button class="btn btn-sm btn-primary" type="submit">
+                                    <i class="fas fa-search"></i> Rechercher
+                                </button>
+                           </div>
                         </form>
+
                     </div>
-                    <div class="col-md-2">
-                        <select class="form-select">
-                            <option value="simple">Simple</option>
-                            <option value="advanced">Avancée</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">Rechercher</button>
-                    </div>
+
                 </div>
             </section>
 
@@ -45,9 +45,8 @@
                             <th>Prénom</th>
                             <th>Sexe</th>
                             <th>Date de naissance</th>
-                            <th>Téléphone</th>
                             <th>Consultation</th>
-                            <th class="text-end">Actions</th>
+                            <th>Fiche</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,7 +66,6 @@
                                 {% endif %}
                             </td>
                             <td>{{ patient.birth_date|date:"d/m/Y"|default:"-" }}</td>
-                            <td>{{ patient.phone_number|default:"-" }}</td>
                             <td>
                                 {% if patient.is_consulted %}
                                     <span class="badge bg-success">Consulté</span>
@@ -76,23 +74,19 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <div class="d-flex justify-content-end gap-2">
+                                <div class="d-flex justify-content-end">
                                     <a href="{% url 'detail_patient' patient.id %}" class="btn btn-light btn-sm">
                                         Voir la fiche
                                     </a>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            Actions
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#">Signes vitaux</a></li>
-                                            <li><a class="dropdown-item" href="#">Consultations</a></li>
-                                            <li><a class="dropdown-item" href="#">Antécédents</a></li>
-                                        </ul>
-                                    </div>
                                 </div>
                             </td>
                         </tr>
+                        {% empty %}
+                           <tr>
+                            <td colspan="12">
+                                <span>Ce patient n'existe pas !</span>
+                            </td>
+                           </tr>
                         {% endfor %}
                     </tbody>
                 </table>

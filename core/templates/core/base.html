@@ -14,8 +14,9 @@
 
     <div class="d-flex flex-column">
         <header class="app__header px-4 py-2">
+
             <div class="logo-doc">
-                <h3>e-Health Kinshasa</h3>
+                <img src="{% static 'media/log-kin.png' %}" alt="Doctaplus Logo" class="img-fluid">
             </div>
 
             <div class="d-flex align-items-center gap-4">
@@ -85,14 +86,14 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="position-sticky pt-3">
+            <div class="col-md-4 col-lg-2 sidebar">
+                <div class="position-sticky pt-1">
                     <ul class="nav flex-column">
                         {% if request.user.is_doctor %}
                         <li class="nav-item">
                             <a class="nav-link d-flex align-items-center gap-3 py-3 px-1 text-white" href="{% url 'doctor_dashboard' %}">
                                 <i class="fas fa-hospital"></i>
-                                <span>Tableau de bord Médécin</span>
+                                <span>Tableau de Médécin</span>
                             </a>
                         </li>
                         {% elif request.user.is_nurse %}
@@ -100,7 +101,7 @@
                         <li class="nav-item">
                             <a class="nav-link d-flex align-items-center gap-3 py-3 px-1 text-white" href="{% url 'nurse_dashboard' %}">
                                 <i class="fas fa-hospital"></i>
-                                <span>Tableau de bord Infirmier</span>
+                                <span>Tableau de Infirmier</span>
                             </a>
                         </li>
 
@@ -120,28 +121,28 @@
                         {% if request.user.is_doctor %}
 
                         <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="{% url 'consultation_list' %}">
+                            <a class="nav-link d-flex align-items-center gap-3 px-1 text-white" href="{% url 'consultation_list' %}">
                                 <i class="fas fa-list-alt"></i>
                                 <span>Liste de consultations</span>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="{% url 'plan_consultation' %}">
+                            <a class="nav-link d-flex align-items-center gap-3 px-1 text-white" href="{% url 'plan_consultation' %}">
                                 <i class="fas fa-calendar-alt"></i>
                                 <span>Consultation</span>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="{% url 'appoitement' %}">
+                            <a class="nav-link d-flex align-items-center gap-3 px-1 text-white" href="{% url 'appoitement' %}">
                                 <i class="fas fa-calendar-check"></i>
                                 <span>Rendez-vous</span>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 text-white" href="#">
+                            <a class="nav-link d-flex align-items-center gap-3 px-1 text-white" href="#">
                                 <i class="fas fa-file-medical"></i>
                                 <span>Fiches malades</span>
                             </a>
@@ -150,7 +151,7 @@
                         <!-- Patients -->
 
                         <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center gap-3 py-3 px- text-white" data-bs-toggle="collapse" href="#patientSubmenu" role="button" aria-expanded="false" aria-controls="patientSubmenu">
+                            <a class="nav-link d-flex align-items-center gap-3 px-1 text-white" data-bs-toggle="collapse" href="#patientSubmenu" role="button" aria-expanded="false" aria-controls="patientSubmenu">
                                 <i class="fas fa-users"></i>
                                 <span>Patients</span>
                                 <i class="fas fa-chevron-down ms-auto"></i>
@@ -158,19 +159,19 @@
                             <div class="collapse" id="patientSubmenu">
                                 <ul class="nav flex-column ms-4">
                                     <li class="nav-item">
-                                        <a class="nav-link text-white py-2" href="{% url 'inscription_patient' %}">
+                                        <a class="nav-link text-white px-1" href="{% url 'inscription_patient' %}">
                                             <i class="fas fa-plus me-2"></i>Nouveau patient
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link text-white py-2" href="{% url 'liste_patient' %}">
-                                            <i class="fas fa-list me-2"></i>Liste des patients
+                                        <a class="nav-link text-white px-1" href="{% url 'liste_patient' %}">
+                                            <i class="fas fa-list"></i>Liste des patients
                                         </a>
                                     </li>
 
                                     <li class="nav-item">
-                                        <a class="nav-link text-white py-2" href="{% url 'consultation_list' %}">
-                                            <i class="fas fa-list me-2"></i>Consultations
+                                        <a class="nav-link text-white px-2" href="{% url 'consultation_list' %}">
+                                            <i class="fas fa-list"></i>Consultations
                                         </a>
                                     </li>
                                 </ul>
@@ -298,19 +299,19 @@
                             <div class="collapse" id="patientSubmenu">
                                 <ul class="nav flex-column ms-4">
                                     <li class="nav-item">
-                                        <a class="nav-link text-white py-2" href="">
-                                            <i class="fas fa-plus me-2"></i>Nouveau Patient
+                                        <a class="nav-link text-white px-2" href="">
+                                            <i class="fas fa-plus me-2"></i> Nouveau Patient
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link text-white py-2" href="">
-                                            <i class="fas fa-list me-2"></i>Liste des patients
+                                        <a class="nav-link text-white px-1" href="">
+                                            <i class="fas fa-list me-2"></i> Liste des patients
                                         </a>
                                     </li>
 
                                     <li class="nav-item">
-                                        <a class="nav-link text-white py-2" href="">
-                                            <i class="fas fa-file-medical me-2"></i>Rapport Medecin
+                                        <a class="nav-link text-white px-1" href="">
+                                            <i class="fas fa-file-medical me-2"></i> Rapport Medecin
                                         </a>
                                     </li>
                                 </ul>

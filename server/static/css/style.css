@@ -17,7 +17,8 @@ body{
     width: 350px;
     height: 50px;
     position: relative;
-    top: 5px;
+    top: 1px;
+    right: 100px;
 }
 
 .logo-doc img{
@@ -27,13 +28,14 @@ body{
 }
 
 .sidebar{
-    background-color: rgb(3, 120, 93);
+    background-color: rgb(1, 108, 175);
     color: #ffffff;
     height: 100vh;
 }
 
 .sidebar a{
     color: #ffffff;
+    font-size: 16px;
     text-decoration: none;
 }
 

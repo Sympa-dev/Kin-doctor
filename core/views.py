@@ -19,7 +19,6 @@ import pandas as pd
 import os
 from django.conf import settings
 from django.db import IntegrityError
-from xhtml2pdf import pisa
 from django.template.loader import get_template
 from django.http import HttpResponse
 from django.template import Context, Template
@@ -159,7 +158,18 @@ def liste_patient(request, *args, **kwargs):
     }
 
     return render(request, "core/liste_patient.html", context)
-   
+
+def recherche_patient(request, *args, **kwargs):
+
+    query = request.POST.get("q", '')
+    patients = Patients.objects.filter(name__icontains=query) if query else Patients.objects.all()
+
+    context ={
+        'patients': patients,
+        'query': query
+    }
+
+    return render(request, "core/liste_patient.html", context)
 
 def detail_patient(request, id):
 
@@ -389,7 +399,7 @@ def detail_consultation(request, id):
 
 def consultation_list(request):
 
-    consultations = Consultation.objects.filter(doctor=request.user.doctor)
+    consultations = Consultation.objects.filter(doctor=True)
 
     context = {
         'consultations': consultations
@@ -634,8 +644,6 @@ def nurse_dashboard(request):
     return render(request, 'core/nurse_dashboard.html', context)
 
 def inscription_patient(request, *args, **kwargs):
-    # Récupérer les compagnies disponibles
-    companies = Company.objects.all()
 
     if request.method == 'POST':
         # Récupérer les données du formulaire
@@ -647,19 +655,24 @@ def inscription_patient(request, *args, **kwargs):
         phone_number = request.POST.get('phone_number')
         email = request.POST.get('email')
 
-        # Conversion des champs booléens
-        relative_same_address = request.POST.get('relative_same_address') == 'True'
-        has_insurance = request.POST.get('has_insurance') == 'True'
-        is_conventioned = request.POST.get('is_conventioned') == 'True'
-
-        # Récupérer la compagnie sélectionnéea
-        insurance_provider = request.POST.get('insurance_provider')
-        convention_provider = request.POST.get('convention_provider')
+        # les informations sur la tuteur
+        relative_name = request.POST.get('relative_name')
+        relative_phone = request.POST.get('relative_phone')
+        relative_address = request.POST.get('relative_address')
 
         # Vérifier si les champs obligatoires sont remplis
         if not all([name, first_name, last_name, birth_date, gender, phone_number, email]):
             messages.error(request, "Veuillez remplir tous les champs obligatoires.")
-            return render(request, 'core/inscription_patient.html', {'companies': companies})
+            return render(request, 'core/inscription_patient.html')
+        
+        if Patients.objects.filter(email=email).exists():
+            messages.error(request, "Cette adresse mail est déjà utilisé par un autre patient !")
+            return render(request, "core/inscription_patient.html")
+        
+        # Vérifie que le genre du patient a été sélectionné
+        if gender:
+            messages.error(request, "Veuillez choisir un genre pour ce patient !")
+            return render(request, "core/inscription_patient.html")
 
         try:
             # Création du patient
@@ -671,11 +684,9 @@ def inscription_patient(request, *args, **kwargs):
                 gender=gender,
                 phone_number=phone_number,
                 email=email,
-                relative_same_address=relative_same_address,
-                has_insurance=has_insurance,
-                is_conventioned=is_conventioned,
-                insurance_provider=insurance_provider,
-                convention_provider=convention_provider,
+                relative_name=relative_name,
+                relative_address=relative_address,
+                relative_phone=relative_phone
             )
 
             messages.success(request, "Patient enregistré avec succès.")
@@ -685,10 +696,7 @@ def inscription_patient(request, *args, **kwargs):
             messages.error(request, "Erreur lors de l'enregistrement du patient.")
             return redirect('inscription_patient')
 
-    # Retourner le contexte avec la liste des compagnies
-    context = {'companies': companies}
-
-    return render(request, 'core/inscription_patient.html', context)
+    return render(request, 'core/inscription_patient.html')
 
 def vitalsign(request, id):
 
@@ -838,7 +846,7 @@ def medicalrecord_pdf(request, id):
         
         # Créer le PDF en format A4
         p = canvas.Canvas(response, pagesize=A4)
-        
+         
         # Logo (vous pouvez le mettre ou non selon votre besoin)
         try:
             logo_path = os.path.join(settings.MEDIA_ROOT, 'media/doctaplus.png')

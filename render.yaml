@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: kin-doctor
+    env: python
+    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput"
+    startCommand: "gunicorn server.wsgi:application"
+    staticPublishPath: staticfiles
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: server.settings
+      - key: SECRET_KEY
+        value: "3#$vu-xtueiep+7+wh(ex6ass5ea*0ly%0*h@wy+rr7jk@cyni"
+      - key: DEBUG
+        value: false
+      - key: DATABASE_URL
+        value: "postgresql://postgres:root@localhost:5432/medical-data-center"

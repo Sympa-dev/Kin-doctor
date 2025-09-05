@@ -1,0 +1,233 @@
+{% extends 'doctors/base.html' %}
+
+{% block title %}Mes patients{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- En-tête -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <h2 class="text-2xl font-bold text-gray-900">Mes patients</h2>
+            <div class="flex space-x-4">
+                <div class="relative">
+                    <input type="text" placeholder="Rechercher un patient..." 
+                           class="rounded-md border border-gray-300 pl-10 pr-4 py-2 w-64"
+                           id="searchPatient">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des patients -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dernière visite</th>
+                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">État</th>
+                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for patient in patients %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ patient.full_name }}" alt="">
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ patient.full_name }}</div>
+                                    <div class="text-sm text-gray-500">{{ patient.email }}</div>
+                                    <div class="text-xs text-gray-500">
+                                        {% if patient.birth_date %}Né(e) le {{ patient.birth_date|date:"d/m/Y" }}{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if patient.last_visit %}
+                            <div class="text-sm text-gray-900">{{ patient.last_visit|date:"d/m/Y" }}</div>
+                            <div class="text-sm text-gray-500">{{ patient.last_visit|date:"H:i" }}</div>
+                            {% else %}
+                            <span class="text-sm text-gray-500">Jamais consulté</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if patient.status == 'active' %}bg-green-100 text-green-800
+                                {% elif patient.status == 'inactive' %}bg-gray-100 text-gray-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ patient.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-3">
+                                <a href="{% url 'doctors:patient_medical_record' patient.id %}" 
+                                   class="text-blue-600 hover:text-blue-900">
+                                    Dossier médical
+                                </a>
+                                <a href="{% url 'doctors:new_consultation' patient.id %}"
+                                   class="text-green-600 hover:text-green-900">
+                                    Nouvelle consultation
+                                </a>
+                                <button onclick="showPatientHistory('{{ patient.id }}')"
+                                        class="text-gray-600 hover:text-gray-900">
+                                    Historique
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                            Aucun patient trouvé
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if patients.has_other_pages %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="flex-1 flex justify-between sm:hidden">
+                {% if patients.has_previous %}
+                <a href="?page={{ patients.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Précédent
+                </a>
+                {% endif %}
+                {% if patients.has_next %}
+                <a href="?page={{ patients.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Suivant
+                </a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Affichage de <span class="font-medium">{{ patients.start_index }}</span> à
+                        <span class="font-medium">{{ patients.end_index }}</span> sur
+                        <span class="font-medium">{{ patients.paginator.count }}</span> patients
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {% if patients.has_previous %}
+                        <a href="?page={{ patients.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Précédent</span>
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                        {% endif %}
+
+                        {% for i in patients.paginator.page_range %}
+                        {% if patients.number == i %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                            {{ i }}
+                        </span>
+                        {% else %}
+                        <a href="?page={{ i }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            {{ i }}
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if patients.has_next %}
+                        <a href="?page={{ patients.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Suivant</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal Historique Patient -->
+<div class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden" id="historyModal">
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">Historique du patient</h3>
+                <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 max-h-[60vh] overflow-y-auto" id="historyContent">
+                <!-- Le contenu sera chargé dynamiquement -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchPatient');
+    let searchTimeout;
+
+    searchInput.addEventListener('input', function(e) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const searchTerm = e.target.value;
+            window.location.href = `?search=${encodeURIComponent(searchTerm)}`;
+        }, 500);
+    });
+
+    function showPatientHistory(patientId) {
+        const modal = document.getElementById('historyModal');
+        const content = document.getElementById('historyContent');
+        
+        modal.classList.remove('hidden');
+        content.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
+
+        fetch(`/doctors/patients/${patientId}/history/`)
+            .then(response => response.json())
+            .then(data => {
+                content.innerHTML = generateHistoryHTML(data);
+            })
+            .catch(error => {
+                content.innerHTML = '<div class="text-red-600">Erreur lors du chargement de l\'historique</div>';
+            });
+    }
+
+    function closeHistoryModal() {
+        document.getElementById('historyModal').classList.add('hidden');
+    }
+
+    function generateHistoryHTML(data) {
+        return `
+            <div class="space-y-4">
+                ${data.consultations.map(consultation => `
+                    <div class="border rounded-lg p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-medium text-gray-900">${consultation.date}</h4>
+                                <p class="text-sm text-gray-600">${consultation.type}</p>
+                            </div>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                ${consultation.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                                ${consultation.status}
+                            </span>
+                        </div>
+                        <p class="mt-2 text-gray-700">${consultation.notes}</p>
+                        ${consultation.prescriptions ? `
+                            <div class="mt-2">
+                                <h5 class="text-sm font-medium text-gray-900">Prescriptions:</h5>
+                                <ul class="list-disc list-inside text-sm text-gray-600">
+                                    ${consultation.prescriptions.map(p => `<li>${p}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'patient/base.html' %}
+
+{% block title %}Mes documents{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Mes documents</h1>
+    <p class="mt-1 text-sm text-gray-500">Gérez vos documents et résultats médicaux</p>
+</div>
+
+<!-- Actions Section -->
+<div class="mb-6 flex justify-between items-center">
+    <div class="flex space-x-3">
+        <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            <i class="fas fa-upload mr-2"></i>
+            Ajouter un document
+        </button>
+    </div>
+    <div class="flex items-center space-x-4">
+        <div class="relative">
+            <select class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                <option>Tous les types</option>
+                <option>Résultats analyses</option>
+                <option>Ordonnances</option>
+                <option>Radiographies</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Documents Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for i in "123"|make_list %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-lg bg-red-50 text-red-500 flex items-center justify-center">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900">Résultats analyses sang</h3>
+                    <p class="text-xs text-gray-500">PDF • 2.4 MB</p>
+                </div>
+            </div>
+            <button class="text-gray-400 hover:text-gray-500">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+        </div>
+        <div class="text-sm text-gray-500 mb-4">
+            Ajouté le 03 sept. 2025 par Dr. Martin
+        </div>
+        <div class="flex items-center justify-between">
+            <button class="inline-flex items-center text-sm text-primary hover:text-primary-dark">
+                <i class="fas fa-download mr-1"></i>
+                Télécharger
+            </button>
+            <div class="flex items-center space-x-2">
+                <button class="p-1 text-gray-400 hover:text-primary rounded-full hover:bg-gray-100">
+                    <i class="fas fa-share"></i>
+                </button>
+                <button class="p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+</div>
+
+
+<style>
+.document-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md) !important;
+}
+</style>
+{% endblock %}

@@ -1,239 +1,158 @@
 from django.shortcuts import render, redirect
-from django.urls import reverse
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .serializers import UserSerializer
-from .models import User
 from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
 from django.db import IntegrityError
+from .models import User
 
 
-# Create your views here.
-@api_view(['POST', 'GET'])
-@permission_classes([AllowAny])
-def register(request):
+# ----------------------------
+# Vue d'inscription (Patient & Doctor)
+# ----------------------------
+
+def register(request, *args, **kwargs):
     if request.method == 'POST':
         try:
-            # Get and validate data from request
-            username = request.POST.get('username')
-            email = request.POST.get('email')
-            first_name = request.POST.get('first_name')
-            last_name = request.POST.get('last_name')
-            password = request.POST.get('password')
-            password_confirm = request.POST.get('password_confirm')
-            user_type = request.POST.get('user_type')
+            username = request.POST.get('username', '').strip()
+            email = request.POST.get('email', '').strip().lower()
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            password = request.POST.get('password', '')
+            password_confirm = request.POST.get('password_confirm', '')
+            role = request.POST.get('role', '').strip()  # patient | doctor
 
-            # Validate required fields
+            # -------------------
+            # VALIDATIONS
+            # -------------------
+
             if not username:
-                return render(request, 'accounts/register.html', {
-                    'messages': ['Le nom d\'utilisateur est requis'],
-                    'message_tags': ['danger']
-                })
-                
-            if not password:
-                return render(request, 'accounts/register.html', {
-                    'messages': ['Le mot de passe est requis'],
-                    'message_tags': ['danger']
-                })
+                messages.error(request, "Le nom d'utilisateur est requis.")
+                return redirect('accounts:register')
 
-            if not user_type or user_type.strip() == '':
-                return render(request, 'accounts/register.html', {
-                    'messages': ['Le type d\'utilisateur est requis'],
-                    'message_tags': ['danger'],
-                    'user_types': [
-                        {'value': 'doctor', 'label': 'Docteur'},
-                        {'value': 'nurse', 'label': 'Infirmier(e)'},
-                        {'value': 'receptionist', 'label': 'Réceptionniste'},
-                        {'value': 'pharmacist', 'label': 'Pharmacien(ne)'},
-                        {'value': 'lab_technician', 'label': 'Technicien(ne) de laboratoire'},
-                        {'value': 'admin', 'label': 'Administrateur'}
-                    ]
-                })
+            if not email:
+                messages.error(request, "L'adresse email est requise.")
+                return redirect('accounts:register')
+
+            if not password or not password_confirm:
+                messages.error(request, "Le mot de passe et sa confirmation sont requis.")
+                return redirect('accounts:register')
 
             if password != password_confirm:
-                return render(request, 'accounts/register.html', {
-                    'messages': ['Les mots de passe ne correspondent pas'],
-                    'message_tags': ['danger']
-                })
+                messages.error(request, "Les mots de passe ne correspondent pas.")
+                return redirect('accounts:register')
 
-            # Check if username already exists
+            if role not in ['patient', 'doctor']:
+                messages.error(request, "Le rôle choisi est invalide.")
+                return redirect('accounts:register')
 
+            # Vérifier unicité
             if User.objects.filter(username=username).exists():
-                return render(request, 'accounts/register.html', {
-                    'messages': ['Ce nom d\'utilisateur est déjà pris'],
-                    'message_tags': ['danger']
-                })
+                messages.error(request, "Ce nom d'utilisateur est déjà pris.")
+                return redirect('accounts:register')
 
-            if email and User.objects.filter(email=email).exists():
-                return render(request, 'accounts/register.html', {
-                    'messages': ['Cette adresse email est déjà utilisée'],
-                    'message_tags': ['danger']
-                })
+            if User.objects.filter(email=email).exists():
+                messages.error(request, "Cette adresse email est déjà utilisée.")
+                return redirect('accounts:register')
 
-            # Validate user type
-            valid_user_types = {
-                'doctor': 'Docteur',
-                'nurse': 'Infirmier(e)', 
-                'receptionist': 'Réceptionniste',
-                'pharmacist': 'Pharmacien(ne)',
-                'lab_technician': 'Technicien(ne) de laboratoire',
-                'admin': 'Administrateur'
-            }
-            
-            if user_type not in valid_user_types:
-                return render(request, 'accounts/register.html', {
-                    'messages': [f'Type d\'utilisateur invalide. Veuillez choisir parmi: {", ".join(valid_user_types.values())}'],
-                    'message_tags': ['danger']
-                })
+            # Vérification du mot de passe
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                messages.error(request, " ".join(e.messages))
+                return redirect('accounts:register')
 
-            # Create user based on type using dictionary mapping
-            user_create_methods = {
-                'doctor': User.objects.create_doctor,
-                'nurse': User.objects.create_nurse,
-                'receptionist': User.objects.create_receptionist,
-                'pharmacist': User.objects.create_pharmacist,
-                'lab_technician': User.objects.create_lab_technician,
-                'admin': User.objects.create_admin
-            }
+            # -------------------
+            # CRÉATION UTILISATEUR
+            # -------------------
 
-            create_method = user_create_methods[user_type]
-            user = create_method(
+            user = User.objects.create_user(
                 username=username,
                 email=email,
                 password=password,
                 first_name=first_name,
                 last_name=last_name
             )
-            
-            # Update boolean fields based on user type
-            boolean_fields = {
-                'doctor': 'is_doctor',
-                'nurse': 'is_nurse',
-                'receptionist': 'is_receptionist',
-                'pharmacist': 'is_pharmacist',
-                'lab_technician': 'is_laboratory_technician',
-                'admin': 'is_admin'
-            }
-    
-            # Reset all fields to False
-            for field in boolean_fields.values():
-                setattr(user, field, False)
-    
-            # Set corresponding field to True
-            setattr(user, boolean_fields[user_type], True)
-            
+
+            # Initialiser les rôles
+            user.is_patient = role == 'patient'
+            user.is_doctor = role == 'doctor'
+            user.is_admin = role == 'admin'
+
+            if role == 'patient':
+                user.is_patient = True
+            elif role == 'doctor':
+                user.is_doctor = True
+            else:
+                user.is_admin = True  # Rôle admin pour tests initiaux
+
             user.is_active = True
             user.save()
 
-            messages.success(request, 'Votre compte a été créé avec succès. Veuillez vous connecter.')
-            return redirect('login')
+            messages.success(request, "Compte créé avec succès. Connectez-vous maintenant.")
+            return redirect('accounts:login')
 
-        except ValidationError as e:
-            return render(request, 'accounts/register.html', {
-                'messages': ['Erreur de validation: ' + str(e)],
-                'message_tags': ['danger']
-            })
-
-        except IntegrityError as e:
-            return render(request, 'accounts/register.html', {
-                'messages': ['Erreur d\'intégrité de la base de données'],
-                'message_tags': ['danger']
-            })
+        except IntegrityError:
+            messages.error(request, "Erreur interne: doublon dans la base de données.")
+            return redirect('accounts:register')
 
         except Exception as e:
-            return render(request, 'accounts/register.html', {
-                'messages': ['Une erreur inattendue s\'est produite'],
-                'message_tags': ['danger']
-            })
+            messages.error(request, f"Erreur inattendue: {str(e)}")
+            return redirect('accounts:register')
 
-    elif request.method == 'GET':
-        return render(request, 'accounts/register.html', {
-            'user_types': [
-                {'value': 'doctor', 'label': 'Docteur'},
-                {'value': 'nurse', 'label': 'Infirmier(e)'},
-                {'value': 'receptionist', 'label': 'Réceptionniste'},
-                {'value': 'pharmacist', 'label': 'Pharmacien(ne)'},
-                {'value': 'lab_technician', 'label': 'Technicien(ne) de laboratoire'},
-                {'value': 'admin', 'label': 'Administrateur'}
-            ]
-        })
+    # GET → afficher formulaire
+    return render(request, 'accounts/register.html', {
+        'role': [
+            {'value': 'patient', 'label': 'Patient'},
+            {'value': 'doctor', 'label': 'Docteur'},
+        ]
+    })
 
-@api_view(['POST', 'GET'])
-@permission_classes([AllowAny])
-def login_view(request):
-    try:
-        if request.method == 'POST':
-            username = request.data.get('username')
-            password = request.data.get('password')
 
-            # Valider les champs obligatoires
-            if not username:
-                return Response({
-                    'error': 'Le nom d\'utilisateur est requis'
-                }, status=status.HTTP_400_BAD_REQUEST)
+# ----------------------------
+# Vue de connexion
+# ----------------------------
 
-            if not password:
-                return Response({
-                    'error': 'Le mot de passe est requis'
-                }, status=status.HTTP_400_BAD_REQUEST)
+def login_view(request, *args, **kwargs):
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
 
-            # Authentifier l'utilisateur
-            user = authenticate(request, username=username, password=password)
+        if not username or not password:
+            messages.error(request, "Nom d'utilisateur et mot de passe requis.")
+            return redirect('accounts:login')
 
-            if user is not None:
-                if user.is_active:
+        user = authenticate(request, username=username, password=password)
 
-                    login(request, user)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
 
-                    # Générer le token d'authentification
-                    
-                    token, created = Token.objects.get_or_create(user=user)
+                # Redirection selon rôle
 
-                    if user.is_doctor:
-
-                        return redirect('doctor_dashboard')
-
-                    elif user.is_nurse:
-
-                        return redirect('nurse_dashboard')
-
-                    elif user.is_admin:
-
-                        return redirect('dashboard')
-
-                    else:
-
-                        # Redirection par défaut pour les autres utilisateurs
-
-                        return redirect('dashboard')
+                if user.is_patient:
+                    return redirect('patient:dashboard')
+                elif user.is_doctor:
+                    return redirect('doctors:dashboard')
+                elif user.is_admin:
+                    return redirect('admin_dashboard')
                 else:
-                    return Response({
-                        'error': 'Votre compte n\'est pas actif'
-                    }, status=status.HTTP_401_UNAUTHORIZED)
+                    messages.error(request, "Votre rôle est invalide, contactez l’administrateur.")
+                    return redirect('accounts:login')
             else:
-                return Response({
-                    'error': 'Nom d\'utilisateur ou mot de passe incorrect'
-                }, status=status.HTTP_401_UNAUTHORIZED)
+                messages.error(request, "Votre compte est désactivé.")
+                return redirect('accounts:login')
+        else:
+            messages.error(request, "Identifiants incorrects.")
+            return redirect('accounts:login')
 
-        # Handle GET request
-        return render(request, 'accounts/login.html')
+    return render(request, 'accounts/login.html')
 
-    except Exception as e:
-        """
-        Gestion des erreurs inattendues
-        :param e: L'exception levée
-        :type e: Exception
-        """
-        print(f"Erreur de connexion: {str(e)}")
-        return Response({
-            'error': 'Une erreur inattendue s\'est produite'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-def logout_view(request):
+
+# ----------------------------
+# Vue de déconnexion
+# ----------------------------
+def logout_view(request, *args, **kwargs):
     logout(request)
-    return redirect('login')
+    messages.success(request, "Vous avez été déconnecté avec succès.")
+    return redirect('accounts:login')

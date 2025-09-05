@@ -1,0 +1,472 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kin-Doctor Patient | {% block title %}Mon Espace{% endblock %}</title>
+    
+    <!-- CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#00B5B8',
+                            dark: '#009597',
+                            light: '#33C3C6'
+                        },
+                        secondary: '#3B4FD1',
+                        success: '#10B981',
+                        danger: '#EF4444',
+                        warning: '#F59E0B',
+                        info: '#3B82F6'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Styles personnalisés qui ne peuvent pas être gérés par Tailwind */
+            --primary-color: #00B5B8;
+            --primary-dark: #009597;
+            --primary-light: #33C3C6;
+            --secondary-color: #3B4FD1;
+            --success-color: #10B981;
+            --danger-color: #EF4444;
+            --warning-color: #F59E0B;
+            --info-color: #3B82F6;
+            --text-primary: #1F2937;
+            --text-secondary: #4B5563;
+            --text-muted: #9CA3AF;
+            --bg-light: #F9FAFB;
+            --bg-white: #FFFFFF;
+            --border-color: #E5E7EB;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --radius-sm: 0.375rem;
+            --radius: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+        }
+
+        /* Header styles */
+        .patient-header {
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+        }
+
+        .patient-brand img {
+            height: 40px;
+            width: auto;
+        }
+
+        /* Sidebar styles */
+        .patient-sidebar {
+            position: fixed;
+            top: 72px;
+            left: 0;
+            bottom: 0;
+            width: 280px;
+            background: var(--bg-white);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1020;
+        }
+
+        .patient-sidebar .nav-link {
+            color: var(--text-secondary);
+            padding: 0.875rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .patient-sidebar .nav-link:hover,
+        .patient-sidebar .nav-link.active {
+            color: var(--primary-color);
+            background: rgba(0, 181, 184, 0.04);
+            border-left-color: var(--primary-color);
+        }
+
+        .patient-sidebar .nav-link i {
+            font-size: 1.25rem;
+            width: 1.5rem;
+            text-align: center;
+        }
+
+        /* Main content styles */
+        .patient-main {
+            margin-left: 280px;
+            margin-top: 72px;
+            padding: 2rem;
+            min-height: calc(100vh - 72px);
+        }
+
+        /* Card styles */
+        .dashboard-card {
+            background: var(--bg-white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Button styles */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* User menu styles */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            transition: all 0.2s ease;
+        }
+
+        .user-menu:hover {
+            background-color: var(--bg-light);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 991.98px) {
+            .patient-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .patient-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .patient-main {
+                margin-left: 0;
+            }
+
+            .sidebar-backdrop {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1010;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <button class="p-2 rounded-md lg:hidden text-gray-600 hover:text-gray-900 hover:bg-gray-100" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <a href="" class="flex-shrink-0">
+                        <img class="h-10 w-auto" src="{% static 'media/log-kin.png' %}" alt="Kin-Doctor">
+                    </a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button data-dropdown="notifications" class="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-gray-100 focus:outline-none" type="button">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center bg-red-500 text-white text-xs rounded-full">
+                                2
+                            </span>
+                        </button>
+                        <div data-dropdown-menu="notifications" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 hidden">
+                            <div class="p-4 border-b border-gray-200">
+                                <h6 class="text-sm font-semibold text-gray-900">Notifications</h6>
+                            </div>
+                            <div class="divide-y divide-gray-200">
+                                <a href="#" class="block p-4 hover:bg-gray-50 transition duration-150 ease-in-out">
+                                    <div class="flex space-x-4">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-calendar-check text-primary text-xl"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900">Rappel de rendez-vous</p>
+                                            <p class="text-sm text-gray-500">Demain à 14h00 avec Dr. Martin</p>
+                                            <p class="text-xs text-gray-400 mt-1">Il y a 1 heure</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User menu -->
+                    <div class="relative">
+                        <button data-dropdown="user-menu" class="flex items-center space-x-3 p-2 rounded-full hover:bg-gray-100" type="button">
+                            <div class="w-10 h-10 rounded-full bg-primary-light text-white flex items-center justify-center font-semibold">
+                                {% if user.username %}
+                                    {{ user.username }}
+                                {% else %}
+                                    {{ user.username }}
+                                {% endif %}
+                            </div>
+                            <div class="hidden lg:block text-left">
+                                <div class="text-sm font-semibold text-gray-900">{{ user.username }}</div>
+                                <div class="text-xs text-gray-500">Patient</div>
+                            </div>
+                        </button>
+                        <div data-dropdown-menu="user-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 hidden">
+                            <div class="py-1">
+                                <a href="" class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-user w-5 h-5 mr-3 text-primary"></i>Mon profil
+                                </a>
+                                <a href="" class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-cog w-5 h-5 mr-3 text-primary"></i>Paramètres
+                                </a>
+                                <div class="border-t border-gray-200"></div>
+                                <a href="" class="group flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt w-5 h-5 mr-3"></i>Déconnexion
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="fixed inset-y-0 left-0 transform lg:translate-x-0 w-72 bg-white border-r border-gray-200 pt-16 h-full transition-transform duration-300 ease-in-out z-40" id="sidebar">
+        <div class="flex flex-col h-full py-4">
+            <div class="flex-1 space-y-1">
+                <a href="{% url 'patient:dashboard' %}" 
+                   class="group flex items-center px-6 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'patient_dashboard' %}text-primary bg-primary bg-opacity-5 border-l-4 border-primary{% else %}text-gray-600 hover:text-primary hover:bg-gray-50 border-l-4 border-transparent{% endif %}">
+                    <i class="fas fa-home w-5 h-5 mr-3"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="{% url 'patient:find_doctor' %}" 
+                   class="group flex items-center px-6 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'patient_find_doctor' %}text-primary bg-primary bg-opacity-5 border-l-4 border-primary{% else %}text-gray-600 hover:text-primary hover:bg-gray-50 border-l-4 border-transparent{% endif %}">
+                    <i class="fas fa-user-md w-5 h-5 mr-3"></i>
+                    <span>Trouver un médecin</span>
+                </a>
+                <a href="{% url 'patient:appointments' %}" 
+                   class="group flex items-center px-6 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'patient_appointments' %}text-primary bg-primary bg-opacity-5 border-l-4 border-primary{% else %}text-gray-600 hover:text-primary hover:bg-gray-50 border-l-4 border-transparent{% endif %}">
+                    <i class="fas fa-calendar-alt w-5 h-5 mr-3"></i>
+                    <span>Mes rendez-vous</span>
+                </a>
+                <a href="{% url 'patient:medical_records' %}" 
+                   class="group flex items-center px-6 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'patient_medical_records' %}text-primary bg-primary bg-opacity-5 border-l-4 border-primary{% else %}text-gray-600 hover:text-primary hover:bg-gray-50 border-l-4 border-transparent{% endif %}">
+                    <i class="fas fa-file-medical w-5 h-5 mr-3"></i>
+                    <span>Mon dossier médical</span>
+                </a>
+                <a href="{% url 'patient:prescriptions' %}" 
+                   class="group flex items-center px-6 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'patient_prescriptions' %}text-primary bg-primary bg-opacity-5 border-l-4 border-primary{% else %}text-gray-600 hover:text-primary hover:bg-gray-50 border-l-4 border-transparent{% endif %}">
+                    <i class="fas fa-prescription w-5 h-5 mr-3"></i>
+                    <span>Mes ordonnances</span>
+                </a>
+                <a href="{% url 'patient:messages' %}" 
+                   class="group flex items-center px-6 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'patient_messages' %}text-primary bg-primary bg-opacity-5 border-l-4 border-primary{% else %}text-gray-600 hover:text-primary hover:bg-gray-50 border-l-4 border-transparent{% endif %}">
+                    <i class="fas fa-envelope w-5 h-5 mr-3"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="{% url 'patient:documents' %}" 
+                   class="group flex items-center px-6 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'patient_documents' %}text-primary bg-primary bg-opacity-5 border-l-4 border-primary{% else %}text-gray-600 hover:text-primary hover:bg-gray-50 border-l-4 border-transparent{% endif %}">
+                    <i class="fas fa-folder w-5 h-5 mr-3"></i>
+                    <span>Mes documents</span>
+                </a>
+                <a href="{% url 'patient:billing' %}" 
+                   class="group flex items-center px-6 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'patient_billing' %}text-primary bg-primary bg-opacity-5 border-l-4 border-primary{% else %}text-gray-600 hover:text-primary hover:bg-gray-50 border-l-4 border-transparent{% endif %}">
+                    <i class="fas fa-file-invoice w-5 h-5 mr-3"></i>
+                    <span>Facturation</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Backdrop for mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Main content -->
+    <main class="lg:pl-72 pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-4 rounded-lg p-4 {% if message.tags == 'success' %}bg-green-50 text-green-800{% elif message.tags == 'error' %}bg-red-50 text-red-800{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-800{% else %}bg-blue-50 text-blue-800{% endif %}" role="alert">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                {% if message.tags == 'success' %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% elif message.tags == 'error' %}
+                                    <i class="fas fa-exclamation-circle"></i>
+                                {% elif message.tags == 'warning' %}
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                {% else %}
+                                    <i class="fas fa-info-circle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium">{{ message }}</p>
+                            </div>
+                            <div class="ml-auto pl-3">
+                                <div class="-mx-1.5 -my-1.5">
+                                    <button type="button" class="inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 {% if message.tags == 'success' %}bg-green-50 text-green-500 hover:bg-green-100 focus:ring-offset-green-50 focus:ring-green-600{% elif message.tags == 'error' %}bg-red-50 text-red-500 hover:bg-red-100 focus:ring-offset-red-50 focus:ring-red-600{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-500 hover:bg-yellow-100 focus:ring-offset-yellow-50 focus:ring-yellow-600{% else %}bg-blue-50 text-blue-500 hover:bg-blue-100 focus:ring-offset-blue-50 focus:ring-blue-600{% endif %}">
+                                        <span class="sr-only">Fermer</span>
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+
+    <script>
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        });
+
+        backdrop.addEventListener('click', function() {
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.add('hidden');
+        });
+
+        // Dropdowns
+        const dropdowns = {};
+        
+        document.querySelectorAll('[data-dropdown]').forEach(button => {
+            const dropdownId = button.getAttribute('data-dropdown');
+            const menu = document.querySelector(`[data-dropdown-menu="${dropdownId}"]`);
+            
+            if (!menu) return;
+            
+            dropdowns[dropdownId] = {
+                button: button,
+                menu: menu,
+                isOpen: false
+            };
+            
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const dropdown = dropdowns[dropdownId];
+                
+                // Fermer tous les autres dropdowns
+                Object.keys(dropdowns).forEach(key => {
+                    if (key !== dropdownId && dropdowns[key].isOpen) {
+                        dropdowns[key].menu.classList.add('hidden');
+                        dropdowns[key].isOpen = false;
+                    }
+                });
+                
+                // Toggle le dropdown actuel
+                dropdown.isOpen = !dropdown.isOpen;
+                dropdown.menu.classList.toggle('hidden');
+            });
+        });
+        
+        // Fermer les dropdowns quand on clique en dehors
+        document.addEventListener('click', (e) => {
+            Object.values(dropdowns).forEach(dropdown => {
+                if (dropdown.isOpen && !dropdown.button.contains(e.target) && !dropdown.menu.contains(e.target)) {
+                    dropdown.menu.classList.add('hidden');
+                    dropdown.isOpen = false;
+                }
+            });
+        });
+        
+        // Fermer les dropdowns avec la touche Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                Object.values(dropdowns).forEach(dropdown => {
+                    if (dropdown.isOpen) {
+                        dropdown.menu.classList.add('hidden');
+                        dropdown.isOpen = false;
+                    }
+                });
+            }
+        });
+
+        // Alert dismissal
+        document.querySelectorAll('[role="alert"] button').forEach(button => {
+            button.addEventListener('click', () => {
+                button.closest('[role="alert"]').remove();
+            });
+        });
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

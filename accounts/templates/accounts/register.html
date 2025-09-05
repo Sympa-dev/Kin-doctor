@@ -17,7 +17,6 @@
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 
-
 <div class="d-flex min-vh-100">
     <div class="flex-grow-1 d-flex flex-column p-4 p-sm-5 p-lg-6">
         <div class="w-100 mx-auto" style="max-width: 30rem;">
@@ -41,13 +40,13 @@
                         {% endfor %}
                         {% endif %}
 
-                    <div class="text-center mb-4">
+                    <div class="text-center mb-2">
                         <img src="{% static 'media/log-kin.png' %}" alt="DoctaPlus Logo" class="h-16" style="height: 4rem;">
                     </div>
 
-                    <h2 class="mb-4 text-center fw-bold">
+                    <h4 class="mb-4 text-center fw-bold">
                         Créez votre compte
-                    </h2>
+                    </h4>
 
                     <form class="mb-4" method="post" style="position: relative;top: -10px;">
                         {% csrf_token %}
@@ -92,13 +91,9 @@
 
                         <div class="mb-4">
                             <label class="form-label text-primary fw-semibold">Type d'utilisateur</label>
-                            <select class="form-select border-primary" name="user_type">
+                            <select class="form-select border-primary" name="role">
                                 <option value="doctor">Docteur</option>
-                                <option value="admin">Administrateur</option>
-                                <option value="nurse">Infirmier</option>
-                                <option value="pharmacist">Pharmacien</option>
-                                <option value="receptionist">Réceptionniste</option>
-                                <option value="lab_technician">Technicien de laboratoire</option>
+                                <option value="patient">Patient</option>
                             </select>
                         </div>
 
@@ -109,7 +104,7 @@
 
                     <p class="text-center text-muted">
                         Vous avez déjà un compte ?
-                        <a href="{% url 'login' %}" class="text-decoration-none">Se connecter</a>
+                        <a href="{% url 'accounts:login' %}" class="text-decoration-none">Se connecter</a>
                     </p>
                 </div>
             </div>

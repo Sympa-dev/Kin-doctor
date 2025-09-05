@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard Médecin{% endblock %} | Kin-doctor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Animations et transitions personnalisées */
+        .sidebar-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .sidebar-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 2px;
+            width: 0;
+            background-color: #2563eb;
+            transition: width 0.3s ease;
+        }
+        .sidebar-link:hover::after {
+            width: 100%;
+        }
+        .active-link {
+            background-color: #eef2ff;
+            color: #2563eb;
+            border-right: 3px solid #2563eb;
+        }
+        .menu-animation {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .profile-hover:hover img {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Sidebar -->
+    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-200 ease-in-out md:translate-x-0" id="sidebar">
+        <div class="flex items-center justify-center h-20 border-b bg-gradient-to-r from-blue-600 to-blue-800">
+            <h1 class="text-2xl font-bold text-white flex items-center">
+                <i class="fas fa-stethoscope mr-2"></i>
+                Kin-doctor
+            </h1>
+        </div>
+        <nav class="mt-5">
+            <a href="{% url 'doctors:dashboard' %}" class="sidebar-link flex items-center px-6 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 group">
+                <i class="fas fa-home mr-3 group-hover:scale-110 transition-transform"></i>
+                <span>Tableau de bord</span>
+            </a>
+            <a href="{% url 'doctors:appointments' %}" class="sidebar-link flex items-center px-6 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 group">
+                <i class="fas fa-calendar-alt mr-3 group-hover:scale-110 transition-transform"></i>
+                <span>Rendez-vous</span>
+            </a>
+            <a href="{% url 'doctors:patients' %}" class="sidebar-link flex items-center px-6 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 group">
+                <i class="fas fa-users mr-3 group-hover:scale-110 transition-transform"></i>
+                <span>Mes patients</span>
+            </a>
+            <a href="{% url 'doctors:consultations' %}" class="sidebar-link flex items-center px-6 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 group">
+                <i class="fas fa-notes-medical mr-3 group-hover:scale-110 transition-transform"></i>
+                <span>Consultations</span>
+            </a>
+            {% if active_consultation %}
+            <a href="{% url 'doctors:consultation_room' active_consultation.id %}" 
+               class="sidebar-link flex items-center justify-between px-6 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 group bg-green-50">
+                <div class="flex items-center">
+                    <i class="fas fa-video mr-3 text-green-500 group-hover:scale-110 transition-transform"></i>
+                    <span>Consultation en cours</span>
+                </div>
+                <span class="animate-pulse flex h-3 w-3 ml-2">
+                    <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+            </a>
+            {% endif %}
+            <a href="{% url 'doctors:profile' %}" class="sidebar-link flex items-center px-6 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 group">
+                <i class="fas fa-user-md mr-3 group-hover:scale-110 transition-transform"></i>
+                <span>Mon profil</span>
+            </a>
+            <div class="px-6 py-4 mt-auto border-t">
+                <div class="flex items-center space-x-2 text-sm text-gray-500">
+                    <i class="fas fa-circle text-green-500"></i>
+                    <span>En ligne</span>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-64 min-h-screen">
+        <!-- Top Navigation -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <button class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-2 transition-colors duration-200" onclick="toggleSidebar()">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="profile-hover flex items-center text-gray-700 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 rounded-lg px-4 py-2 transition-all duration-200" onclick="toggleUserMenu()">
+                                <img class="h-10 w-10 rounded-full object-cover border-2 border-blue-500 shadow-md" src="https://ui-avatars.com/api/?name=Dr.+{{ user.first_name }}+{{ user.last_name }}&background=2563eb&color=fff" alt="Photo de profil">
+                                <div class="ml-3 text-left">
+                                    <div class="text-sm font-semibold">Dr. {{ user.first_name }} {{ user.last_name }}</div>
+                                    <div class="text-xs text-gray-500">Médecin</div>
+                                </div>
+                                <i class="fas fa-chevron-down ml-3 text-gray-400 group-hover:text-blue-500 transition-colors"></i>
+                            </button>
+                            <div class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 fade-in" id="userMenu">
+                                <div class="px-4 py-2 border-b">
+                                    <div class="text-sm font-semibold text-gray-700">Mon Compte</div>
+                                </div>
+                                <a href="{% url 'doctors:profile' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                    <i class="fas fa-user-circle mr-2"></i>
+                                    Mon profil
+                                </a>
+                                <a href="" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                    <i class="fas fa-cog mr-2"></i>
+                                    Paramètres
+                                </a>
+                                <div class="border-t mt-2">
+                                    <a href="{% url 'accounts:logout' %}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                        <i class="fas fa-sign-out-alt mr-2"></i>
+                                        Déconnexion
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+        // Highlight active link
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const links = document.querySelectorAll('.sidebar-link');
+            links.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active-link');
+                }
+            });
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('translate-x-0');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            menu.classList.toggle('hidden');
+            if (!menu.classList.contains('hidden')) {
+                menu.classList.add('fade-in');
+            }
+        }
+
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('userMenu');
+            const button = event.target.closest('button');
+            if (!button && !menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // Add hover effect to menu items
+        const menuItems = document.querySelectorAll('.sidebar-link');
+        menuItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                const icon = this.querySelector('i');
+                icon.classList.add('transform', 'scale-110');
+            });
+            item.addEventListener('mouseleave', function() {
+                const icon = this.querySelector('i');
+                icon.classList.remove('transform', 'scale-110');
+            });
+        });
+    </script>
+</body>
+</html>

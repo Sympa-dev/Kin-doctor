@@ -1,10 +1,13 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.db.models.query_utils import tree
 from django.utils.text import slugify
 from django.utils import timezone
 from django.contrib.auth.models import User
+import uuid
+import os
 
 
 # Choices for various fields
@@ -134,7 +137,7 @@ class Doctor(models.Model):
     birth_date = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True, blank=True)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='core_doctor')
     order_number = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     address = models.TextField(null=True, blank=True)
@@ -169,6 +172,7 @@ class Patients(models.Model):
         ("Consultation annulée","Consultation annulée"),
         ("Consultation terminée","Consultation terminée"),
     ]
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='patient', null=True, blank=True)
     name = models.CharField(max_length=255, null=True, blank=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255, null=True, blank=True)
@@ -186,9 +190,19 @@ class Patients(models.Model):
     consultation_status = models.CharField(max_length=255, choices=CONSULTATION_STATUS, default="En attente de consultation")
 
     # Emergency Contact Information
-    relative_name = models.CharField(max_length=255, null=True, blank=True)
-    relative_phone = models.CharField(max_length=20, null=True, blank=True)
-    relative_address = models.TextField(default=False)
+    emergency_contact_name = models.CharField(max_length=255, null=True, blank=True)
+    emergency_contact_phone = models.CharField(max_length=20, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    
+    # Medical Information
+    medical_history = models.TextField(null=True, blank=True)
+    allergies = models.TextField(null=True, blank=True)
+    blood_group = models.CharField(max_length=10, null=True, blank=True)
+    
+    # Insurance Information
+    insurance_provider = models.CharField(max_length=255, null=True, blank=True)
+    insurance_number = models.CharField(max_length=255, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -424,50 +438,308 @@ class VitalSigns(models.Model):
 # Modèle Dossier Médical
 class MedicalRecord(models.Model):
     STATUS_CHOICES = [
-        ('En attente', 'Pending'),
-        ('terminé', 'Completed'),
-        ('Annulé', 'Cancelled'),
-        ('En consultation', 'In consultation'),
-        ('Terminé', 'Done')
+        ('pending', 'En attente'),
+        ('active', 'Actif'),
+        ('in_consultation', 'En consultation'),
+        ('completed', 'Terminé'),
+        ('archived', 'Archivé'),
+        ('cancelled', 'Annulé')
     ]
+    
     patient = models.OneToOneField(Patients, on_delete=models.CASCADE, related_name="medical_record")
-    consultations = models.ManyToManyField(Consultation, blank=True)
-    sign_vitals = models.ManyToManyField(VitalSigns, blank=True)
-    examinations = models.ManyToManyField(Examen, blank=True)
-    prescriptions = models.ManyToManyField(Prescription, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    file = models.FileField(upload_to='media/medical_records/', null=True, blank=True)
+    consultations = models.ManyToManyField(Consultation, blank=True, related_name="medical_records")
+    sign_vitals = models.ManyToManyField(VitalSigns, blank=True, related_name="medical_records")
+    examinations = models.ManyToManyField(Examen, blank=True, related_name="medical_records")
+    prescriptions = models.ManyToManyField(Prescription, blank=True, related_name="medical_records")
+    
+    # Métadonnées du dossier
+    number = models.CharField(max_length=20, unique=True, db_index=True, blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    priority = models.IntegerField(default=0, help_text="Priorité du dossier (0 = normale)")
+    
+    # Fichiers et notes
+    files = models.ManyToManyField('MedicalFile', related_name='medical_records', blank=True)
     notes = models.TextField(null=True, blank=True)
-    number = models.CharField(max_length=12, unique=True, null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', null=True, blank=True)
+    last_modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='modified_records')
+    
+    # Dates de suivi
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    archived_at = models.DateTimeField(null=True, blank=True)
 
     def generate_number(self):
-
+        """Génère un numéro unique pour le dossier médical."""
         if not self.number:
-
-            last_number = MedicalRecord.objects.all().order_by('-created_at').first().number
-
-            if not last_number:
-
-                last_number = 0
-
-            self.number = f"{self.patient.last_name.upper()}{self.patient.first_name[0].upper()}{str(int(last_number) + 1).zfill(6)}"
+            current_year = timezone.now().year
+            # Utilise les initiales du nom complet
+            patient_name = f"{self.patient.last_name[:2]}{self.patient.first_name[:2]}".upper()
             
+            # Format: ABCD-2025-000001
+            prefix = f"{patient_name}-{current_year}"
+            
+            # Chercher le dernier numéro pour cette année
+            last_record = MedicalRecord.objects.filter(
+                number__startswith=prefix
+            ).order_by('-number').first()
+            
+            if last_record:
+                try:
+                    last_sequence = int(last_record.number.split('-')[-1])
+                    new_sequence = last_sequence + 1
+                except (ValueError, IndexError):
+                    new_sequence = 1
+            else:
+                new_sequence = 1
+            
+            self.number = f"{prefix}-{str(new_sequence).zfill(6)}"
+
+    def clean(self):
+        """Validation personnalisée pour le dossier médical."""
+        if self.status == 'archived' and not self.archived_at:
+            self.archived_at = timezone.now()
+        
+        if self.archived_at and self.status != 'archived':
+            raise ValidationError("Un dossier archivé doit avoir le statut 'archived'")
+
+    def save(self, *args, **kwargs):
+        if not self.number:
+            self.generate_number()
+        self.full_clean()  # Lance la validation
+        super().save(*args, **kwargs)
+
+    def archive(self, user=None):
+        """Archive le dossier médical."""
+        self.status = 'archived'
+        self.archived_at = timezone.now()
+        if user:
+            self.last_modified_by = user
+        self.save()
+
+    def reactivate(self, user=None):
+        """Réactive un dossier archivé."""
+        if self.status == 'archived':
+            self.status = 'active'
+            self.archived_at = None
+            if user:
+                self.last_modified_by = user
+            self.save()
 
     def __str__(self):
-        return f"Dossier Médical de {self.patient}"
+        return f"Dossier Médical {self.number} - {self.patient.first_name} {self.patient.last_name} ({self.status})"
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['number']),
+            models.Index(fields=['status']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['patient', 'status']),
+            models.Index(fields=['archived_at']),
+        ]
+        verbose_name = "Dossier médical"
+        verbose_name_plural = "Dossiers médicaux"
+        permissions = [
+            ("archive_medical_record", "Peut archiver un dossier médical"),
+            ("reactivate_medical_record", "Peut réactiver un dossier médical"),
+            ("view_archived_records", "Peut voir les dossiers archivés"),
+        ]
 
-class Appoitement(models.Model):
-    patient = models.ForeignKey(Patients, on_delete=models.CASCADE, related_name="patient")
-    doctor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+class ConsultationReason(models.Model):
+    name = models.CharField(max_length=255)
+    specialty = models.ForeignKey(Specialty, on_delete=models.CASCADE, related_name='consultation_reasons')
+    duration = models.IntegerField(help_text='Durée en minutes')
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField(null=True, blank=True)
+    is_teleconsultation = models.BooleanField(default=False)
+    preparation_instructions = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.duration} min)"
+
+class TimeSlot(models.Model):
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='time_slots')
     date = models.DateField()
-    time = models.TimeField(null=True, blank=True)
-    statut = models.CharField(
-        max_length=20,
-        choices=[('En attente', 'En attente'), ('Confirmé', 'Confirmé'), ('Annulé', 'Annulé')],
-        default='En attente'
-    )
-    note = models.TextField(null=True, blank=True)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_available = models.BooleanField(default=True)
+    is_recurring = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    max_appointments = models.PositiveIntegerField(default=1)
+    duration = models.PositiveIntegerField(help_text='Durée en minutes', default=30)
+    reason = models.ForeignKey(ConsultationReason, on_delete=models.SET_NULL, null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['date', 'start_time']
+        unique_together = ['doctor', 'date', 'start_time']
+        indexes = [
+            models.Index(fields=['doctor', 'date', 'is_available']),
+            models.Index(fields=['date', 'is_available']),
+        ]
 
     def __str__(self):
-        return f"{self.patient.user.get_full_name()} - {self.doctor.user.get_full_name()} ({self.date})"
+        return f"Dr. {self.doctor.name} - {self.date} {self.start_time}"
+
+    def clean(self):
+        if self.start_time >= self.end_time:
+            raise ValidationError("L'heure de début doit être antérieure à l'heure de fin")
+        
+        # Vérifier les chevauchements
+        overlapping_slots = TimeSlot.objects.filter(
+            doctor=self.doctor,
+            date=self.date,
+            start_time__lt=self.end_time,
+            end_time__gt=self.start_time
+        ).exclude(pk=self.pk)
+        
+        if overlapping_slots.exists():
+            raise ValidationError("Ce créneau chevauche un autre créneau existant")
+            
+        # Vérifier que le créneau est dans le futur lors de la création
+        if not self.pk and timezone.now().date() > self.date:
+            raise ValidationError("Impossible de créer un créneau dans le passé")
+
+class Appointment(models.Model):
+    APPOINTMENT_STATUS = [
+        ('pending', 'En attente de confirmation'),
+        ('confirmed', 'Confirmé'),
+        ('cancelled_by_patient', 'Annulé par le patient'),
+        ('cancelled_by_doctor', 'Annulé par le médecin'),
+        ('completed', 'Terminé'),
+        ('missed', 'Patient non présent'),
+    ]
+
+    patient = models.ForeignKey(Patients, on_delete=models.CASCADE, related_name="appointments")
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="appointments")
+    time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE, related_name="appointments")
+    consultation_reason = models.ForeignKey(ConsultationReason, on_delete=models.SET_NULL, null=True)
+    status = models.CharField(max_length=20, choices=APPOINTMENT_STATUS, default='pending')
+    booking_date = models.DateTimeField(auto_now_add=True)
+    cancellation_reason = models.TextField(null=True, blank=True)
+    patient_notes = models.TextField(null=True, blank=True, help_text="Notes ou symptômes décrits par le patient")
+    is_first_visit = models.BooleanField(default=True)
+    reminder_sent = models.BooleanField(default=False)
+    video_consultation_link = models.URLField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.patient.first_name} {self.patient.last_name} - Dr. {self.doctor.name} ({self.time_slot.date})"
+
+    class Meta:
+        ordering = ['-time_slot__date', '-time_slot__start_time']
+        
+    def save(self, *args, **kwargs):
+        if self.consultation_reason and self.consultation_reason.is_teleconsultation:
+            # Logique pour générer le lien de téléconsultation
+            if not self.video_consultation_link:
+                self.video_consultation_link = f"https://consultation.example.com/{uuid.uuid4()}"
+        super().save(*args, **kwargs)
+
+class MedicalFile(models.Model):
+    FILE_TYPES = [
+        ('prescription', 'Prescription'),
+        ('lab_result', 'Résultat de laboratoire'),
+        ('xray', 'Radiographie'),
+        ('scan', 'Scanner'),
+        ('mri', 'IRM'),
+        ('ultrasound', 'Échographie'),
+        ('other', 'Autre')
+    ]
+
+    file = models.FileField(
+        upload_to='medical_records/%Y/%m/',
+        verbose_name="Fichier"
+    )
+    file_type = models.CharField(
+        max_length=20,
+        choices=FILE_TYPES,
+        default='other',
+        verbose_name="Type de fichier"
+    )
+    upload_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Date d'upload"
+    )
+    description = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name="Description"
+    )
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='uploaded_medical_files'
+    )
+
+    def __str__(self):
+        return f"{self.get_file_type_display()} - {self.upload_date.strftime('%Y-%m-%d')}"
+
+    class Meta:
+        ordering = ['-upload_date']
+        verbose_name = "Fichier médical"
+        verbose_name_plural = "Fichiers médicaux"
+
+    def filename(self):
+        return os.path.basename(self.file.name)
+
+    def extension(self):
+        name, extension = os.path.splitext(self.file.name)
+        return extension
+
+class DoctorSchedule(models.Model):
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='schedules')
+    day_of_week = models.IntegerField(choices=[
+        (0, 'Lundi'),
+        (1, 'Mardi'),
+        (2, 'Mercredi'),
+        (3, 'Jeudi'),
+        (4, 'Vendredi'),
+        (5, 'Samedi'),
+        (6, 'Dimanche')
+    ])
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_available = models.BooleanField(default=True)
+    break_start = models.TimeField(null=True, blank=True)
+    break_end = models.TimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['day_of_week', 'start_time']
+        unique_together = ['doctor', 'day_of_week']
+
+    def __str__(self):
+        return f"{self.doctor.name} - {self.get_day_of_week_display()}"
+
+class Patient(models.Model):
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    birth_date = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
+    email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=20)
+    address = models.TextField(blank=True)
+    blood_group = models.CharField(max_length=5, blank=True)
+    allergies = models.TextField(blank=True)
+    medical_history = models.TextField(blank=True)
+    insurance_number = models.CharField(max_length=50, blank=True)
+    insurance_provider = models.CharField(max_length=100, blank=True)
+    emergency_contact_name = models.CharField(max_length=255, blank=True)
+    emergency_contact_phone = models.CharField(max_length=20, blank=True)
+    reference = models.CharField(max_length=255, unique=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+    def save(self, *args, **kwargs):
+        if not self.reference:
+            count = Patient.objects.count()
+            self.reference = f'PAT-{count + 1:06d}'
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Patient"
+        verbose_name_plural = "Patients"

@@ -31,9 +31,9 @@ class User(AbstractUser):
             "unique": _("A user with that username already exists."),
         },
     )
-    first_name = models.CharField(_("first name"), max_length=150, blank=True)
-    last_name = models.CharField(_("last name"), max_length=150, blank=True)
-    email = models.EmailField(_("email address"), blank=True)
+    first_name = models.CharField(_("first name"), max_length=150, blank=True, null=True)
+    last_name = models.CharField(_("last name"), max_length=150, blank=True, null=True)
+    email = models.EmailField(_("email address"), blank=True, null=True)
     is_staff = models.BooleanField(
         _("staff status"),
         default=False,
@@ -48,60 +48,52 @@ class User(AbstractUser):
         ),
     )
 
-    is_doctor = models.BooleanField(
-        _("doctor"),
-        default=False,
-        help_text=_(
-            "Designates whether this user is a doctor."
-        ),
+    is_patient = models.BooleanField(default=False)
+    is_doctor = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
+
+    # Informations supplémentaires
+    phone_number = models.CharField(
+        _("numéro de téléphone"),
+        max_length=20,
+        blank=True,
+        null=True
     )
 
-    is_patient = models.BooleanField(
-        _("patient"),
-        default=False,
-        help_text=_(
-            "Designates whether this user is a patient."
-        ),
+    date_of_birth = models.DateField(
+        _("date de naissance"),
+        blank=True,
+        null=True
     )
 
-    is_admin = models.BooleanField(
-        _("admin"),
-        default=False,
-        help_text=_(
-            "Designates whether this user is an admin."
-        ),
+    address = models.TextField(
+        _("adresse"),
+        blank=True,
+        null=True
     )
 
-    is_receptionist = models.BooleanField(
-        _("receptionist"), 
-        default=False,
-        help_text=_(
-            "Designates whether this user is a receptionist."
-        ),
+    profile_picture = models.ImageField(
+        _("photo de profil"),
+        upload_to='profile_pictures/%Y/%m/',
+        blank=True,
+        null=True
     )
 
-    is_pharmacist = models.BooleanField(
-        _("pharmacist"),
-        default=False,
-        help_text=_(
-            "Designates whether this user is a pharmacist."
-        ),
+    # Champs spécifiques aux médecins
+    speciality = models.CharField(
+        _("spécialité"),
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text=_("Spécialité du médecin (si applicable)")
     )
 
-    is_nurse = models.BooleanField(
-        _("nurse"),
-        default=False,
-        help_text=_(
-            "Designates whether this user is a nurse."
-        ),
-    )
-
-    is_laboratory_technician = models.BooleanField(
-        _("laboratory technician"),
-        default=False,
-        help_text=_(
-            "Designates whether this user is a laboratory technician."
-        ),
+    license_number = models.CharField(
+        _("numéro de licence"),
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text=_("Numéro de licence médicale (si médecin)")
     )
 
     GENDER_CHOICES = [
@@ -114,6 +106,8 @@ class User(AbstractUser):
         max_length=10,
         choices=GENDER_CHOICES,
         default="male",
+        blank=True,
+        null=True,
         help_text=_(
             "Designates the gender of the user."
         ),

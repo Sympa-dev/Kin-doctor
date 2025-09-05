@@ -1,0 +1,211 @@
+{% extends 'patient/base.html' %}
+
+{% block title %}Mes rendez-vous{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Mes rendez-vous</h1>
+    <p class="mt-1 text-sm text-gray-500">Gérez vos consultations et rendez-vous médicaux</p>
+</div>
+
+<!-- Actions Section -->
+<div class="mb-6 flex justify-between items-center">
+    <div class="flex space-x-3">
+        <button onclick="openModal()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200">
+            <i class="fas fa-plus mr-2"></i>
+            Nouveau rendez-vous
+        </button>
+    </div>
+    <div class="flex items-center space-x-4">
+        <div class="relative">
+            <select class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                <option>Tous les médecins</option>
+                <option>Dr. Martin</option>
+                <option>Dr. Dubois</option>
+            </select>
+        </div>
+        <div class="relative">
+            <select class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                <option>Cette semaine</option>
+                <option>Ce mois</option>
+                <option>Tous</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Calendar View -->
+<div class="bg-white shadow overflow-hidden sm:rounded-md">
+    <ul class="divide-y divide-gray-200">
+        {% for i in "123"|make_list %}
+        <li>
+            <div class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-12 w-12 rounded-full bg-primary bg-opacity-10 flex items-center justify-center">
+                            <i class="fas fa-user-md text-primary text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">
+                                Dr. Martin
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                Consultation générale
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-gray-900">
+                                15 Sept. 2025
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                14:30 - 15:00
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="p-2 text-gray-400 hover:text-primary rounded-full hover:bg-gray-100">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button class="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+
+</div>
+
+<!-- New Appointment Modal -->
+<div class="fixed inset-0 z-50 hidden overflow-y-auto" id="appointmentModal" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+        <!-- Modal panel -->
+        <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:align-middle">
+            <form class="p-6">
+                <!-- Header -->
+                <div class="mb-6 flex items-center justify-between">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Nouveau rendez-vous</h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeModal()">
+                        <span class="sr-only">Fermer</span>
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="space-y-6">
+                    <!-- Type de consultation -->
+                    <div>
+                        <label for="consultation-type" class="block text-sm font-medium text-gray-700">Type de consultation</label>
+                        <select id="consultation-type" class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-primary focus:outline-none focus:ring-primary sm:text-sm">
+                            <option value="">Sélectionnez un type</option>
+                            <option value="general">Consultation générale</option>
+                            <option value="suivi">Suivi</option>
+                            <option value="urgence">Urgence</option>
+                            <option value="specialiste">Consultation spécialiste</option>
+                        </select>
+                    </div>
+
+                    <!-- Médecin -->
+                    <div>
+                        <label for="doctor" class="block text-sm font-medium text-gray-700">Médecin</label>
+                        <div class="relative mt-1">
+                            <select id="doctor" class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-primary focus:outline-none focus:ring-primary sm:text-sm">
+                                <option value="">Choisissez un médecin</option>
+                                <option value="1">Dr. Martin - Médecin généraliste</option>
+                                <option value="2">Dr. Dubois - Cardiologue</option>
+                                <option value="3">Dr. Bernard - Pédiatre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Date et Heure -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                            <input type="date" id="date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="time" class="block text-sm font-medium text-gray-700">Heure</label>
+                            <select id="time" class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-primary focus:outline-none focus:ring-primary sm:text-sm">
+                                <option value="">Sélectionnez une heure</option>
+                                <option value="09:00">09:00</option>
+                                <option value="09:30">09:30</option>
+                                <option value="10:00">10:00</option>
+                                <option value="10:30">10:30</option>
+                                <option value="11:00">11:00</option>
+                                <option value="11:30">11:30</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Motif -->
+                    <div>
+                        <label for="reason" class="block text-sm font-medium text-gray-700">Motif de consultation</label>
+                        <textarea id="reason" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm" placeholder="Décrivez brièvement la raison de votre consultation..."></textarea>
+                    </div>
+
+                    <!-- Options supplémentaires -->
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <input id="urgent" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
+                            <label for="urgent" class="ml-2 block text-sm text-gray-700">Consultation urgente</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="first-visit" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
+                            <label for="first-visit" class="ml-2 block text-sm text-gray-700">Première consultation</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" class="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" onclick="closeModal()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        Confirmer le rendez-vous
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts pour le modal -->
+<script>
+function openModal() {
+    document.getElementById('appointmentModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('appointmentModal').classList.add('hidden');
+}
+
+// Ouvrir le modal quand on clique sur le bouton "Nouveau rendez-vous"
+document.querySelector('button').addEventListener('click', openModal);
+
+// Fermer le modal quand on clique en dehors
+window.onclick = function(event) {
+    const modal = document.getElementById('appointmentModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+</script>
+
+<style>
+.appointment-date {
+    width: 70px;
+}
+</style>
+{% endblock %}

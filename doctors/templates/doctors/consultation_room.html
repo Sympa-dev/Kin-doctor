@@ -1,0 +1,246 @@
+{% extends 'doctors/base.html' %}
+{% load static %}
+
+{% block title %}Consultation avec {{ consultation.patient.get_full_name }}{% endblock %}
+
+{% block extra_head %}
+<script src="https://unpkg.com/simple-peer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<style>
+    .chat-message {
+        transition: all 0.3s ease;
+    }
+    .chat-message:hover {
+        transform: translateX(5px);
+    }
+    .video-container {
+        transition: all 0.3s ease;
+    }
+    .video-container:hover {
+        transform: scale(1.02);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="h-full bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Section vidéo consultation -->
+            <div class="w-full md:w-2/3">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            Consultation avec {{ consultation.patient.get_full_name }}
+                        </h2>
+                        <div class="flex items-center space-x-4">
+                            <span id="connectionStatus" class="text-green-500 flex items-center">
+                                <i class="fas fa-circle text-xs mr-2"></i>
+                                Connecté
+                            </span>
+                            <button id="endCall" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200">
+                                <i class="fas fa-phone-slash mr-2"></i>
+                                Terminer
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Vidéo principale -->
+                        <div class="md:col-span-2">
+                            <div class="video-container bg-gray-900 rounded-lg overflow-hidden aspect-video">
+                                <video id="remoteVideo" class="w-full h-full object-cover" autoplay></video>
+                            </div>
+                        </div>
+                        
+                        <!-- Vidéo locale (petit écran) -->
+                        <div class="md:col-span-1">
+                            <div class="video-container bg-gray-800 rounded-lg overflow-hidden aspect-video">
+                                <video id="localVideo" class="w-full h-full object-cover" autoplay muted></video>
+                            </div>
+                            <div class="flex justify-center space-x-4 mt-4">
+                                <button id="toggleAudio" class="p-3 bg-gray-200 hover:bg-gray-300 rounded-full transition duration-200">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <button id="toggleVideo" class="p-3 bg-gray-200 hover:bg-gray-300 rounded-full transition duration-200">
+                                    <i class="fas fa-video"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes et prescriptions -->
+                    <div class="mt-6">
+                        <form method="POST" class="space-y-4">
+                            {% csrf_token %}
+                            <div>
+                                <label for="notes" class="block text-sm font-medium text-gray-700">Notes de consultation</label>
+                                <textarea id="notes" name="notes" rows="4" 
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ consultation.notes }}</textarea>
+                            </div>
+                            <div>
+                                <label for="prescriptions" class="block text-sm font-medium text-gray-700">Prescriptions</label>
+                                <textarea id="prescriptions" name="prescriptions" rows="4" 
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ consultation.prescriptions }}</textarea>
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button type="submit" name="action" value="save" 
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-200">
+                                    <i class="fas fa-save mr-2"></i>
+                                    Enregistrer
+                                </button>
+                                <button type="submit" name="action" value="end" 
+                                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition duration-200">
+                                    <i class="fas fa-check mr-2"></i>
+                                    Terminer la consultation
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat et informations patient -->
+            <div class="w-full md:w-1/3">
+                <!-- Informations patient -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Informations patient</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-user-circle text-gray-400 mr-3"></i>
+                            <span>{{ consultation.patient.get_full_name }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar text-gray-400 mr-3"></i>
+                            <span>{{ consultation.patient.birth_date|default:"Non renseigné" }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-phone text-gray-400 mr-3"></i>
+                            <span>{{ consultation.patient.phone_number|default:"Non renseigné" }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-gray-400 mr-3"></i>
+                            <span>{{ consultation.patient.email|default:"Non renseigné" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Chat</h3>
+                    <div id="chat-messages" class="h-96 overflow-y-auto space-y-4 mb-4">
+                        <div class="chat-message flex items-start">
+                            <div class="flex-shrink-0">
+                                <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Dr.+{{ user.first_name }}+{{ user.last_name }}&background=2563eb&color=fff" alt="">
+                            </div>
+                            <div class="ml-3 bg-blue-50 rounded-lg px-4 py-2">
+                                <p class="text-sm font-medium text-gray-900">Dr. {{ user.first_name }}</p>
+                                <p class="text-sm text-gray-700">Bonjour, comment puis-je vous aider ?</p>
+                                <span class="text-xs text-gray-500">14:23</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="chat-input" 
+                            class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            placeholder="Tapez votre message...">
+                        <button id="send-message" 
+                            class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg transition duration-200">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Configuration de la vidéo
+let localStream;
+let peer;
+let isAudioEnabled = true;
+let isVideoEnabled = true;
+
+// Démarrer la vidéo locale
+async function startLocalVideo() {
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('localVideo').srcObject = localStream;
+    } catch (err) {
+        console.error('Erreur lors de l\'accès à la caméra:', err);
+    }
+}
+
+// Gérer les boutons audio/vidéo
+document.getElementById('toggleAudio').addEventListener('click', () => {
+    isAudioEnabled = !isAudioEnabled;
+    localStream.getAudioTracks().forEach(track => track.enabled = isAudioEnabled);
+    document.getElementById('toggleAudio').innerHTML = 
+        `<i class="fas fa-microphone${isAudioEnabled ? '' : '-slash'}"></i>`;
+});
+
+document.getElementById('toggleVideo').addEventListener('click', () => {
+    isVideoEnabled = !isVideoEnabled;
+    localStream.getVideoTracks().forEach(track => track.enabled = isVideoEnabled);
+    document.getElementById('toggleVideo').innerHTML = 
+        `<i class="fas fa-video${isVideoEnabled ? '' : '-slash'}"></i>`;
+});
+
+// Chat
+const chatMessages = document.getElementById('chat-messages');
+const chatInput = document.getElementById('chat-input');
+const sendButton = document.getElementById('send-message');
+
+function addMessage(message, isDoctor = true) {
+    const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const html = `
+        <div class="chat-message flex items-start ${isDoctor ? '' : 'justify-end'}">
+            ${isDoctor ? `
+                <div class="flex-shrink-0">
+                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Dr.+{{ user.first_name }}+{{ user.last_name }}&background=2563eb&color=fff" alt="">
+                </div>
+            ` : ''}
+            <div class="ml-3 ${isDoctor ? 'bg-blue-50' : 'bg-green-50'} rounded-lg px-4 py-2">
+                <p class="text-sm font-medium text-gray-900">${isDoctor ? 'Dr. {{ user.first_name }}' : '{{ consultation.patient.get_full_name }}'}</p>
+                <p class="text-sm text-gray-700">${message}</p>
+                <span class="text-xs text-gray-500">${time}</span>
+            </div>
+            ${!isDoctor ? `
+                <div class="flex-shrink-0 ml-3">
+                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ consultation.patient.get_full_name }}&background=22c55e&color=fff" alt="">
+                </div>
+            ` : ''}
+        </div>
+    `;
+    chatMessages.insertAdjacentHTML('beforeend', html);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+sendButton.addEventListener('click', () => {
+    const message = chatInput.value.trim();
+    if (message) {
+        addMessage(message);
+        chatInput.value = '';
+    }
+});
+
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        sendButton.click();
+    }
+});
+
+// Démarrer la vidéo au chargement
+document.addEventListener('DOMContentLoaded', startLocalVideo);
+
+// Gérer la fin de la consultation
+document.getElementById('endCall').addEventListener('click', () => {
+    if (confirm('Êtes-vous sûr de vouloir terminer la consultation ?')) {
+        document.querySelector('button[value="end"]').click();
+    }
+});
+</script>
+{% endblock %}

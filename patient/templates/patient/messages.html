@@ -1,0 +1,157 @@
+{% extends 'patient/base.html' %}
+
+{% block title %}Mes messages{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Mes messages</h1>
+    <p class="mt-1 text-sm text-gray-500">Communiquez avec vos praticiens</p>
+</div>
+
+<!-- Messages Container -->
+<div class="flex h-[calc(100vh-16rem)]">
+    <!-- Messages List -->
+    <div class="w-1/3 border-r border-gray-200 overflow-y-auto">
+        <div class="space-y-1 p-4">
+                <div class="card-body p-0">
+                    <div class="p-3 border-bottom">
+                        <h5 class="mb-0">Messages</h5>
+                    </div>
+                    <div class="message-list">
+                        {% for i in "12345"|make_list %}
+                        <a href="#" class="message-item d-block p-3 border-bottom {% if forloop.first %}active{% endif %}">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="flex-shrink-0">
+                                    <div class="avatar bg-primary text-white">
+                                        <i class="fas fa-user-md"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-0">Dr. Martin</h6>
+                                    <small class="text-muted">Médecin généraliste</small>
+                                </div>
+                                <div class="text-muted small">
+                                    <time>14:30</time>
+                                </div>
+                            </div>
+                            <p class="text-truncate mb-0 text-muted">Bonjour, suite à votre dernière consultation...</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Content -->
+        <div class="flex-1 flex flex-col bg-gray-50">
+            <!-- Selected conversation -->
+            <div class="p-4 border-b border-gray-200 bg-white">
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900">Dr. Martin</h3>
+                        <p class="text-xs text-gray-500">En ligne</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                {% for i in "123"|make_list %}
+                <!-- Message from doctor -->
+                <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="bg-white rounded-lg p-3 shadow-sm">
+                            <p class="text-sm text-gray-900">Bonjour, j'ai bien reçu vos derniers résultats d'analyses. Tout semble normal, continuez le traitement comme prévu.</p>
+                        </div>
+                        <span class="text-xs text-gray-500 mt-1">10:30</span>
+                    </div>
+                </div>
+
+                <!-- Message from patient -->
+                <div class="flex items-start justify-end space-x-3">
+                    <div class="flex-1 text-right">
+                        <div class="inline-block bg-primary text-white rounded-lg p-3 shadow-sm">
+                            <p class="text-sm">Merci docteur, je suis rassuré. À bientôt !</p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 mt-1">10:32</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Message Input -->
+            <div class="p-4 border-t border-gray-200 bg-white">
+                <form class="flex space-x-3">
+                    <div class="flex-1">
+                        <input type="text" placeholder="Écrivez votre message..." 
+                               class="w-full border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                    </div>
+                    <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Envoyer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-item {
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+}
+
+.message-item:hover,
+.message-item.active {
+    background-color: var(--bg-light);
+}
+
+.message-bubble .message {
+    max-width: 80%;
+    border-radius: 1rem;
+}
+
+.chat-messages {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 3px;
+}
+</style>
+{% endblock %}

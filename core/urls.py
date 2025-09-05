@@ -12,10 +12,13 @@ urlpatterns = [
    path('examen/<int:id>/', examen, name='examen'),
    path('detail_examen/<int:id>/', detail_examen, name='detail_examen'),
    path('print_examen_pdf/<int:id>/', print_examen_pdf, name='print_examen_pdf'),
+   
    # Laboratoire
+   
    path('new_exam/', new_exam, name='new_exam'),
 
    # dashboard
+
    path('doctor_dashboard/', doctor_dashboard, name='doctor_dashboard'),
    path('nurse_dashboard/', nurse_dashboard, name='nurse_dashboard'),
    path('dashboard/', dashboard, name='dashboard'),

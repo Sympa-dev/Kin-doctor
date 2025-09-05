@@ -1,0 +1,96 @@
+{% extends 'patient/base.html' %}
+
+{% block title %}Mes Ordonnances{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">Mes Ordonnances</h1>
+    </div>
+
+    <!-- Active Prescriptions -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b">
+            <h2 class="text-lg font-semibold text-gray-900">Ordonnances Actives</h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% if active_prescriptions %}
+                {% for prescription in active_prescriptions %}
+                    <div class="p-6 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <h3 class="text-base font-medium text-gray-900">{{ prescription.title }}</h3>
+                                    <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </div>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Prescrit le {{ prescription.date|date:"d/m/Y" }} par Dr. {{ prescription.doctor.get_full_name }}
+                                </p>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    {% for medication in prescription.medications.all %}
+                                        <div class="flex items-center space-x-2 mb-1">
+                                            <i class="fas fa-pills text-primary"></i>
+                                            <span>{{ medication.name }} - {{ medication.dosage }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="ml-4 flex items-center space-x-4">
+                                {% if prescription.file %}
+                                    <a href="{{ prescription.file.url }}" class="text-primary hover:text-primary-dark" title="Télécharger l'ordonnance">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                {% endif %}
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="p-6 text-center text-gray-500">
+                    Aucune ordonnance active
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Past Prescriptions -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b">
+            <h2 class="text-lg font-semibold text-gray-900">Historique des Ordonnances</h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% if past_prescriptions %}
+                {% for prescription in past_prescriptions %}
+                    <div class="p-6 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <h3 class="text-base font-medium text-gray-900">{{ prescription.title }}</h3>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Prescrit le {{ prescription.date|date:"d/m/Y" }} par Dr. {{ prescription.doctor.get_full_name }}
+                                </p>
+                            </div>
+                            <div class="ml-4 flex items-center space-x-4">
+                                {% if prescription.file %}
+                                    <a href="{{ prescription.file.url }}" class="text-primary hover:text-primary-dark" title="Télécharger l'ordonnance">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="p-6 text-center text-gray-500">
+                    Aucune ordonnance passée
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

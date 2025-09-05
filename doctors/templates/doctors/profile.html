@@ -1,0 +1,268 @@
+{% extends 'doctors/base.html' %}
+
+{% block title %}Mon profil{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Informations personnelles -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="p-6">
+            <div class="flex flex-col md:flex-row">
+                <!-- Photo de profil -->
+                <div class="flex-shrink-0 flex flex-col items-center mb-6 md:mb-0 md:mr-8">
+                    <div class="relative">
+                        <img class="h-32 w-32 rounded-full object-cover" 
+                             src="{% if doctor.profile_picture %}{{ doctor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name=Dr.+{{ user.first_name }}+{{ user.last_name }}&size=128{% endif %}" 
+                             alt="Photo de profil">
+                        <label for="profile_picture" class="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 cursor-pointer hover:bg-blue-700">
+                            <i class="fas fa-camera"></i>
+                            <input type="file" id="profile_picture" name="profile_picture" class="hidden" accept="image/*">
+                        </label>
+                    </div>
+                    <h2 class="mt-4 text-xl font-bold text-gray-900">Dr. {{ user.first_name }} {{ user.last_name }}</h2>
+                    <p class="text-gray-600">{{ doctor.specialty }}</p>
+                </div>
+
+                <!-- Formulaire d'informations -->
+                <div class="flex-1">
+                    <form id="profileForm" class="space-y-6">
+                        {% csrf_token %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="first_name" class="block text-sm font-medium text-gray-700">Prénom</label>
+                                <input type="text" name="first_name" id="first_name" 
+                                       value="{{ user.first_name }}"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="last_name" class="block text-sm font-medium text-gray-700">Nom</label>
+                                <input type="text" name="last_name" id="last_name" 
+                                       value="{{ user.last_name }}"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                                <input type="email" name="email" id="email" 
+                                       value="{{ user.email }}"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700">Téléphone</label>
+                                <input type="tel" name="phone" id="phone" 
+                                       value="{{ doctor.phone }}"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="specialty" class="block text-sm font-medium text-gray-700">Spécialité</label>
+                                <input type="text" name="specialty" id="specialty" 
+                                       value="{{ doctor.specialty }}"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="license_number" class="block text-sm font-medium text-gray-700">Numéro de licence</label>
+                                <input type="text" name="license_number" id="license_number" 
+                                       value="{{ doctor.license_number }}"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="bio" class="block text-sm font-medium text-gray-700">Biographie</label>
+                            <textarea name="bio" id="bio" rows="4" 
+                                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ doctor.bio }}</textarea>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Horaires de consultation -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Horaires de consultation</h3>
+            <div class="space-y-4">
+                {% for day in working_hours %}
+                <div class="flex items-center space-x-4">
+                    <div class="w-32">
+                        <span class="font-medium text-gray-900">{{ day.name }}</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for slot in day.slots %}
+                            <div class="flex items-center space-x-2">
+                                <input type="time" value="{{ slot.start }}" 
+                                       class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <span>à</span>
+                                <input type="time" value="{{ slot.end }}" 
+                                       class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <button class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            {% endfor %}
+                            <button class="flex items-center text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-plus mr-2"></i>
+                                Ajouter un créneau
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Enregistrer les horaires
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paramètres de consultation -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Paramètres de consultation</h3>
+            <div class="space-y-6">
+                <div>
+                    <label for="consultation_duration" class="block text-sm font-medium text-gray-700">
+                        Durée moyenne de consultation (en minutes)
+                    </label>
+                    <input type="number" name="consultation_duration" id="consultation_duration" 
+                           value="{{ doctor.consultation_duration }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="consultation_fee" class="block text-sm font-medium text-gray-700">
+                        Tarif de consultation (en €)
+                    </label>
+                    <input type="number" name="consultation_fee" id="consultation_fee" 
+                           value="{{ doctor.consultation_fee }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Types de consultation proposés</label>
+                    <div class="mt-2 space-y-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="video_consultation" name="video_consultation" 
+                                   {% if doctor.video_consultation %}checked{% endif %}
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label for="video_consultation" class="ml-2 text-gray-700">Consultation vidéo</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="physical_consultation" name="physical_consultation" 
+                                   {% if doctor.physical_consultation %}checked{% endif %}
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label for="physical_consultation" class="ml-2 text-gray-700">Consultation en cabinet</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        Enregistrer les paramètres
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sécurité -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Sécurité</h3>
+            <form id="securityForm" class="space-y-6">
+                {% csrf_token %}
+                <div>
+                    <label for="current_password" class="block text-sm font-medium text-gray-700">
+                        Mot de passe actuel
+                    </label>
+                    <input type="password" name="current_password" id="current_password" 
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="new_password" class="block text-sm font-medium text-gray-700">
+                        Nouveau mot de passe
+                    </label>
+                    <input type="password" name="new_password" id="new_password" 
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="confirm_password" class="block text-sm font-medium text-gray-700">
+                        Confirmer le nouveau mot de passe
+                    </label>
+                    <input type="password" name="confirm_password" id="confirm_password" 
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        Modifier le mot de passe
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('profile_picture').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('profile_picture', file);
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+            fetch('/doctors/profile/update-picture/', {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        }
+    });
+
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch('/doctors/profile/update/', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            if (response.ok) {
+                // Afficher un message de succès
+                alert('Profil mis à jour avec succès');
+            }
+        });
+    });
+
+    document.getElementById('securityForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        if (formData.get('new_password') !== formData.get('confirm_password')) {
+            alert('Les mots de passe ne correspondent pas');
+            return;
+        }
+
+        fetch('/doctors/profile/update-password/', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            if (response.ok) {
+                alert('Mot de passe modifié avec succès');
+                this.reset();
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,176 @@
+{% extends 'patient/base.html' %}
+
+{% block title %}Prendre rendez-vous{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Prendre rendez-vous</h1>
+    <p class="mt-1 text-sm text-gray-500">Sélectionnez une date et un créneau horaire</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Doctor Info -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center">
+                        <i class="fas fa-user-md text-primary text-2xl"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Dr. Martin</h3>
+                    <p class="text-sm text-primary">Cardiologue</p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <div class="flex items-center text-sm text-gray-500 mb-2">
+                    <i class="fas fa-map-marker-alt w-5 h-5 mr-2"></i>
+                    123 Avenue des Médecins, Ville
+                </div>
+                <div class="flex items-center text-sm text-gray-500 mb-2">
+                    <i class="fas fa-phone w-5 h-5 mr-2"></i>
+                    +33 1 23 45 67 89
+                </div>
+                <div class="flex items-center text-sm text-gray-500">
+                    <i class="fas fa-envelope w-5 h-5 mr-2"></i>
+                    dr.martin@kin-doctor.com
+                </div>
+            </div>
+            <div class="mt-6">
+                <h4 class="font-medium text-gray-900 mb-2">Informations sur la consultation</h4>
+                <ul class="space-y-2 text-sm text-gray-500">
+                    <li>• Durée : 30 minutes</li>
+                    <li>• Tarif : 50 €</li>
+                    <li>• Paiement en ligne accepté</li>
+                    <li>• Carte Vitale acceptée</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar and Time Slots -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow p-6">
+            <!-- Calendar -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">Sélectionnez une date</h2>
+                    <div class="flex space-x-2">
+                        <button class="p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-7 gap-2">
+                    <!-- Calendar header -->
+                    <div class="text-center text-sm font-medium text-gray-500">Lun</div>
+                    <div class="text-center text-sm font-medium text-gray-500">Mar</div>
+                    <div class="text-center text-sm font-medium text-gray-500">Mer</div>
+                    <div class="text-center text-sm font-medium text-gray-500">Jeu</div>
+                    <div class="text-center text-sm font-medium text-gray-500">Ven</div>
+                    <div class="text-center text-sm font-medium text-gray-500">Sam</div>
+                    <div class="text-center text-sm font-medium text-gray-500">Dim</div>
+
+                    <!-- Calendar days -->
+                    {% for i in "123456789"|make_list %}
+                    <button class="aspect-square p-2 text-sm font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        {{ forloop.counter }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Time Slots -->
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Créneaux disponibles</h2>
+                <div class="grid grid-cols-3 gap-3">
+                    {% for hour in "9,10,11,14,15,16"|split:"," %}
+                    <button class="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        {{ hour }}:00
+                    </button>
+                    <button class="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        {{ hour }}:30
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Appointment Form -->
+            <form class="mt-8 space-y-6">
+                <div>
+                    <label for="reason" class="block text-sm font-medium text-gray-700">Motif de la consultation</label>
+                    <textarea id="reason" name="reason" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm" 
+                              placeholder="Décrivez brièvement le motif de votre consultation..."></textarea>
+                </div>
+
+                <div>
+                    <label for="notes" class="block text-sm font-medium text-gray-700">Notes supplémentaires (optionnel)</label>
+                    <textarea id="notes" name="notes" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+                              placeholder="Informations complémentaires pour le médecin..."></textarea>
+                </div>
+
+                <div class="flex items-center">
+                    <input id="video-consultation" name="video-consultation" type="checkbox" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                    <label for="video-consultation" class="ml-2 block text-sm text-gray-900">
+                        Je souhaite une consultation vidéo
+                    </label>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Moyen de paiement</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <input id="card" name="payment-method" type="radio" class="h-4 w-4 text-primary focus:ring-primary border-gray-300">
+                            <label for="card" class="ml-3">
+                                <span class="block text-sm font-medium text-gray-700">Carte bancaire</span>
+                                <span class="block text-sm text-gray-500">Paiement sécurisé</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="insurance" name="payment-method" type="radio" class="h-4 w-4 text-primary focus:ring-primary border-gray-300">
+                            <label for="insurance" class="ml-3">
+                                <span class="block text-sm font-medium text-gray-700">Tiers payant</span>
+                                <span class="block text-sm text-gray-500">Avec votre carte Vitale</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button type="button" class="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        Annuler
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium rounded-md border border-transparent text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        Confirmer et payer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Gestion de la sélection des dates et créneaux
+    document.querySelectorAll('[data-date]').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('[data-date]').forEach(b => b.classList.remove('bg-primary', 'text-white'));
+            button.classList.add('bg-primary', 'text-white');
+        });
+    });
+
+    document.querySelectorAll('[data-time]').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('bg-primary', 'text-white'));
+            button.classList.add('bg-primary', 'text-white');
+        });
+    });
+</script>
+{% endblock %}

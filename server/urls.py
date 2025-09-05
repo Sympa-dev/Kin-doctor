@@ -22,6 +22,8 @@ urlpatterns = [
     path('api/', include('core.urls')),
     path('accounts/', include('accounts.urls')),
     path('core/', include('core.urls')),
+    path('patient/', include('patient.urls')),
+    path('doctors/', include(('doctors.urls', 'doctors'), namespace='doctors')),
     
 ]
 

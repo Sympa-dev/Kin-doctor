@@ -1,6 +1,253 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block content %}
-<h1>index</h1>
+<!-- Hero Section -->
+<section class="hero-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Trouvez votre médecin et prenez rendez-vous en ligne</h1>
+                <p class="lead text-muted mb-5">Plus de 100 000 praticiens vous attendent sur Kin-Doctor pour prendre soin de votre santé.</p>
+                <div class="search-box p-4 bg-white rounded-4 shadow-sm">
+                    <form action="#" method="GET">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label class="form-label small fw-medium text-muted">Spécialité ou nom du praticien</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-0 bg-light">
+                                        <i class="fas fa-search text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-0 bg-light" placeholder="Ex: Dr. Martin, Dentiste...">
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label small fw-medium text-muted">Où ?</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-0 bg-light">
+                                        <i class="fas fa-map-marker-alt text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-0 bg-light" placeholder="Ville, code postal...">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">Rechercher</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="{% static 'media/hero-image.jpg' %}" alt="Medical consultation" class="img-fluid rounded-4 shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section class="services-section py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center h3 mb-5">Nos services de santé</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3 text-primary">
+                            <i class="fas fa-calendar-check fa-2x"></i>
+                        </div>
+                        <h5 class="card-title mb-3">Prise de rendez-vous en ligne</h5>
+                        <p class="card-text text-muted">Prenez rendez-vous 24h/24 et 7j/7 avec votre praticien en quelques clics.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3 text-primary">
+                            <i class="fas fa-user-md fa-2x"></i>
+                        </div>
+                        <h5 class="card-title mb-3">Trouvez le bon praticien</h5>
+                        <p class="card-text text-muted">Accédez aux disponibilités de milliers de praticiens sélectionnés.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3 text-primary">
+                            <i class="fas fa-file-medical fa-2x"></i>
+                        </div>
+                        <h5 class="card-title mb-3">Dossier médical en ligne</h5>
+                        <p class="card-text text-muted">Gérez vos documents médicaux et suivez vos rendez-vous en toute sécurité.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Specialities -->
+<section class="specialities-section py-5">
+    <div class="container">
+        <h2 class="text-center h3 mb-5">Spécialités populaires</h2>
+        <div class="row g-4">
+            <div class="col-6 col-md-3">
+                <a href="#" class="text-decoration-none">
+                    <div class="specialty-card p-4 bg-white rounded-4 text-center hover-card">
+                        <div class="specialty-icon mb-3 text-primary">
+                            <i class="fas fa-tooth fa-2x"></i>
+                        </div>
+                        <h6 class="mb-0 text-body">Dentiste</h6>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="#" class="text-decoration-none">
+                    <div class="specialty-card p-4 bg-white rounded-4 text-center hover-card">
+                        <div class="specialty-icon mb-3 text-primary">
+                            <i class="fas fa-heart fa-2x"></i>
+                        </div>
+                        <h6 class="mb-0 text-body">Cardiologue</h6>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="#" class="text-decoration-none">
+                    <div class="specialty-card p-4 bg-white rounded-4 text-center hover-card">
+                        <div class="specialty-icon mb-3 text-primary">
+                            <i class="fas fa-brain fa-2x"></i>
+                        </div>
+                        <h6 class="mb-0 text-body">Neurologue</h6>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="#" class="text-decoration-none">
+                    <div class="specialty-card p-4 bg-white rounded-4 text-center hover-card">
+                        <div class="specialty-icon mb-3 text-primary">
+                            <i class="fas fa-eye fa-2x"></i>
+                        </div>
+                        <h6 class="mb-0 text-body">Ophtalmologue</h6>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="features-section py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="h3 mb-4">Pourquoi choisir Kin-Doctor ?</h2>
+                <div class="feature-list">
+                    <div class="feature-item d-flex align-items-start mb-4">
+                        <div class="feature-icon text-primary me-3">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-2">Simple et rapide</h5>
+                            <p class="text-muted mb-0">Trouvez un praticien et prenez rendez-vous en quelques clics, 24h/24 et 7j/7.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item d-flex align-items-start mb-4">
+                        <div class="feature-icon text-primary me-3">
+                            <i class="fas fa-lock fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-2">100% sécurisé</h5>
+                            <p class="text-muted mb-0">Vos données personnelles sont protégées et sécurisées.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item d-flex align-items-start">
+                        <div class="feature-icon text-primary me-3">
+                            <i class="fas fa-heart fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-2">Service gratuit</h5>
+                            <p class="text-muted mb-0">La prise de rendez-vous sur Kin-Doctor est 100% gratuite.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="{% static 'media/features-image.jpg' %}" alt="Medical staff" class="img-fluid rounded-4 shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.hero-section {
+    background-color: #f8fafc;
+    padding: 80px 0;
+}
+
+.search-box {
+    background: white;
+    border: 1px solid #e5e7eb;
+}
+
+.hover-card {
+    transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.075)!important;
+}
+
+.specialty-card {
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.specialty-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.075)!important;
+    border-color: var(--primary-color);
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(59, 79, 209, 0.1);
+}
+
+.feature-list .feature-item {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: white;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.feature-list .feature-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.08);
+}
+
+.display-4 {
+    font-size: 3.5rem;
+    line-height: 1.2;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2.5rem;
+    }
+}
+</style>
 {% endblock %}
 

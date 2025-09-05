@@ -1,0 +1,117 @@
+{% extends 'doctors/base.html' %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Statistiques -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Statistiques du jour</h3>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">Patients aujourd'hui</span>
+                <span class="text-2xl font-bold text-blue-600">{{ today_patients_count }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">Consultations en attente</span>
+                <span class="text-2xl font-bold text-yellow-600">{{ pending_consultations_count }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">Consultations terminées</span>
+                <span class="text-2xl font-bold text-green-600">{{ completed_consultations_count }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prochains rendez-vous -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Prochains rendez-vous</h3>
+        <div class="space-y-4">
+            {% for appointment in next_appointments %}
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                    <p class="font-medium text-gray-900">{{ appointment.patient.full_name }}</p>
+                    <p class="text-sm text-gray-600">{{ appointment.datetime|date:"H:i" }}</p>
+                </div>
+                <a href="{% url 'doctors:start_consultation' appointment.id %}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Débuter
+                </a>
+            </div>
+            {% empty %}
+            <p class="text-gray-600">Aucun rendez-vous prévu</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Notifications</h3>
+        <div class="space-y-4">
+            {% for notification in notifications %}
+            <div class="p-3 bg-gray-50 rounded-lg">
+                <p class="text-gray-900">{{ notification.message }}</p>
+                <p class="text-sm text-gray-600">{{ notification.created_at|timesince }}</p>
+            </div>
+            {% empty %}
+            <p class="text-gray-600">Aucune notification</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Activité récente -->
+    <div class="md:col-span-2 lg:col-span-3 bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Activité récente</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                        <th class="px-6 py-3 bg-gray-50"></th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for activity in recent_activities %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ activity.patient.full_name }}" alt="">
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ activity.patient.full_name }}</div>
+                                    <div class="text-sm text-gray-500">{{ activity.patient.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ activity.type }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ activity.date|date:"d/m/Y H:i" }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if activity.status == 'completed' %}bg-green-100 text-green-800
+                                {% elif activity.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ activity.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="{{ activity.detail_url }}" class="text-blue-600 hover:text-blue-900">Détails</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-600">Aucune activité récente</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

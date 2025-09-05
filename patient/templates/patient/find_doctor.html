@@ -1,0 +1,319 @@
+{% extends 'patient/base.html' %}
+
+{% block title %}Trouver un médecin{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Trouver un médecin</h1>
+    <p class="mt-1 text-sm text-gray-500">Recherchez un médecin par spécialité et prenez rendez-vous</p>
+</div>
+
+<!-- Search Section -->
+<div class="bg-white rounded-lg shadow p-6 mb-8">
+    <form action="" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="col-span-1">
+            <label for="specialty" class="block text-sm font-medium text-gray-700 mb-1">Spécialité</label>
+            <select id="specialty" name="specialty" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                <option value="">Toutes les spécialités</option>
+                <option value="generaliste">Médecin généraliste</option>
+                <option value="cardiologue">Cardiologue</option>
+                <option value="dermatologue">Dermatologue</option>
+                <option value="pediatre">Pédiatre</option>
+                <!-- Autres spécialités à ajouter -->
+            </select>
+        </div>
+        <div class="col-span-1">
+            <label for="availability" class="block text-sm font-medium text-gray-700 mb-1">Disponibilité</label>
+            <select id="availability" name="availability" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                <option value="">Toutes les disponibilités</option>
+                <option value="today">Aujourd'hui</option>
+                <option value="tomorrow">Demain</option>
+                <option value="week">Cette semaine</option>
+            </select>
+        </div>
+        <div class="col-span-1">
+            <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Localisation</label>
+            <input type="text" id="location" name="location" placeholder="Quartier, ville..." class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
+        </div>
+        <div class="col-span-1 flex items-end">
+            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                <i class="fas fa-search mr-2"></i>
+                Rechercher
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Results Section -->
+<div class="grid grid-cols-1 gap-6">
+    <!-- Doctor Card -->
+    {% for i in "123"|make_list %}
+    <div class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <div class="w-24 h-24 rounded-full bg-primary bg-opacity-10 flex items-center justify-center">
+                    <i class="fas fa-user-md text-primary text-3xl"></i>
+                </div>
+            </div>
+            <div class="ml-6 flex-1">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Dr. Martin</h3>
+                        <p class="text-sm text-primary">Cardiologue</p>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="flex items-center text-sm text-yellow-500">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span class="ml-1 text-gray-600">(4.5)</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <p class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-2"></i>123 Avenue des Médecins, Ville</p>
+                    <p class="text-sm text-gray-500 mt-1"><i class="fas fa-clock mr-2"></i>Prochaine disponibilité : Aujourd'hui à 14:30</p>
+                </div>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Consultation vidéo
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Paiement en ligne
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        10 ans d'expérience
+                    </span>
+                </div>
+                <div class="mt-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">Tarif consultation :</p>
+                        <p class="text-lg font-semibold text-primary">50 €</p>
+                    </div>
+                    <button type="button" 
+                            onclick="openAppointmentModal(this)" 
+                            data-doctor-id="{{ doctor.id }}"
+                            data-doctor-name="Dr. Martin"
+                            data-doctor-specialty="Cardiologue"
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <i class="fas fa-calendar-plus mr-2"></i>
+                        Prendre rendez-vous
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal de prise de rendez-vous -->
+<div class="fixed inset-0 z-50 hidden overflow-y-auto" id="appointmentModal" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+        <!-- Fond semi-transparent -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+        <!-- Modal -->
+        <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:align-middle">
+            <form id="appointmentForm" class="p-6">
+                <!-- En-tête -->
+                <div class="mb-6 flex items-center justify-between">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Nouveau rendez-vous</h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeAppointmentModal()">
+                        <span class="sr-only">Fermer</span>
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Informations du médecin -->
+                <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-primary bg-opacity-10 flex items-center justify-center">
+                            <i class="fas fa-user-md text-primary"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-sm font-medium text-gray-900" id="selectedDoctorName"></h4>
+                            <p class="text-sm text-gray-500" id="selectedDoctorSpecialty"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Champs du formulaire -->
+                <div class="space-y-6">
+                    <!-- Type de consultation -->
+                    <div>
+                        <label for="consultation-type" class="block text-sm font-medium text-gray-700">Type de consultation</label>
+                        <select id="consultation-type" name="consultation_type" class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-primary focus:outline-none focus:ring-primary sm:text-sm">
+                            <option value="">Sélectionnez un type</option>
+                            <option value="general">Consultation générale</option>
+                            <option value="suivi">Suivi</option>
+                            <option value="urgence">Urgence</option>
+                            <option value="specialiste">Consultation spécialiste</option>
+                        </select>
+                    </div>
+
+                    <!-- Date et Heure -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                            <input type="date" id="date" name="date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="time" class="block text-sm font-medium text-gray-700">Heure</label>
+                            <select id="time" name="time" class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-primary focus:outline-none focus:ring-primary sm:text-sm">
+                                <option value="">Sélectionnez une heure</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Motif -->
+                    <div>
+                        <label for="reason" class="block text-sm font-medium text-gray-700">Motif de consultation</label>
+                        <textarea id="reason" name="reason" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm" placeholder="Décrivez brièvement la raison de votre consultation..."></textarea>
+                    </div>
+
+                    <!-- Options supplémentaires -->
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <input id="urgent" name="urgent" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
+                            <label for="urgent" class="ml-2 block text-sm text-gray-700">Consultation urgente</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="first-visit" name="first_visit" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
+                            <label for="first-visit" class="ml-2 block text-sm text-gray-700">Première consultation</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" class="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" onclick="closeAppointmentModal()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        Confirmer le rendez-vous
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script>
+    function openAppointmentModal(button) {
+        const modal = document.getElementById('appointmentModal');
+        const doctorName = button.getAttribute('data-doctor-name');
+        const doctorSpecialty = button.getAttribute('data-doctor-specialty');
+        const doctorId = button.getAttribute('data-doctor-id');
+
+        // Mettre à jour les informations du médecin dans le modal
+        document.getElementById('selectedDoctorName').textContent = doctorName;
+        document.getElementById('selectedDoctorSpecialty').textContent = doctorSpecialty;
+
+        // Stocker l'ID du médecin dans un champ caché
+        let doctorIdInput = document.getElementById('doctor_id');
+        if (!doctorIdInput) {
+            doctorIdInput = document.createElement('input');
+            doctorIdInput.type = 'hidden';
+            doctorIdInput.id = 'doctor_id';
+            doctorIdInput.name = 'doctor_id';
+            document.getElementById('appointmentForm').appendChild(doctorIdInput);
+        }
+        doctorIdInput.value = doctorId;
+
+        // Afficher le modal
+        modal.classList.remove('hidden');
+        
+        // Initialiser les heures disponibles en fonction de la date sélectionnée
+        updateAvailableHours();
+    }
+
+    function closeAppointmentModal() {
+        const modal = document.getElementById('appointmentModal');
+        modal.classList.add('hidden');
+    }
+
+    // Gestionnaire pour la soumission du formulaire
+    document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        try {
+            const response = await fetch('/api/appointments/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            });
+
+            if (response.ok) {
+                // Fermer le modal et afficher un message de succès
+                closeAppointmentModal();
+                alert('Rendez-vous pris avec succès !');
+            } else {
+                const error = await response.json();
+                alert('Erreur lors de la prise de rendez-vous : ' + error.message);
+            }
+        } catch (error) {
+            alert('Erreur lors de la prise de rendez-vous');
+            console.error('Erreur:', error);
+        }
+    });
+
+    // Fonction pour récupérer le cookie CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Mise à jour des heures disponibles en fonction de la date
+    document.getElementById('date').addEventListener('change', updateAvailableHours);
+
+    async function updateAvailableHours() {
+        const dateInput = document.getElementById('date');
+        const timeSelect = document.getElementById('time');
+        const doctorId = document.getElementById('doctor_id').value;
+
+        if (!dateInput.value || !doctorId) return;
+
+        try {
+            const response = await fetch(`/api/doctors/${doctorId}/available-slots/?date=${dateInput.value}`);
+            if (response.ok) {
+                const slots = await response.json();
+                timeSelect.innerHTML = '<option value="">Sélectionnez une heure</option>';
+                slots.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot;
+                    option.textContent = slot;
+                    timeSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des créneaux disponibles:', error);
+        }
+    }
+
+    // Fermer le modal si on clique en dehors
+    window.onclick = function(event) {
+        const modal = document.getElementById('appointmentModal');
+        if (event.target == modal) {
+            closeAppointmentModal();
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}

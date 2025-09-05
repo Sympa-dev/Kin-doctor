@@ -38,6 +38,8 @@ from django.conf import settings
 
 User = get_user_model()
 
+def index(request):
+    return render(request, 'core/index.html')
 
 def render_page(request, page):
     try:

@@ -1,0 +1,73 @@
+{% extends 'patient/base.html' %}
+
+{% block title %}Mon Dossier Médical{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">Mon Dossier Médical</h1>
+    </div>
+
+    <!-- Medical Records Summary -->
+    <div class="bg-white rounded-lg shadow p-6 space-y-6">
+        <div class="border-b pb-4">
+            <h2 class="text-lg font-semibold text-gray-900">Informations Générales</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-sm font-medium text-gray-500">Groupe Sanguin</h3>
+                <p class="mt-1 text-base text-gray-900">{{ patient.blood_type|default:"Non renseigné" }}</p>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium text-gray-500">Allergies</h3>
+                <p class="mt-1 text-base text-gray-900">{{ patient.allergies|default:"Aucune allergie connue" }}</p>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium text-gray-500">Maladies Chroniques</h3>
+                <p class="mt-1 text-base text-gray-900">{{ patient.chronic_conditions|default:"Aucune maladie chronique" }}</p>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium text-gray-500">Antécédents Médicaux</h3>
+                <p class="mt-1 text-base text-gray-900">{{ patient.medical_history|default:"Aucun antécédent" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Medical Records -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b">
+            <h2 class="text-lg font-semibold text-gray-900">Historique Médical Récent</h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% if medical_records %}
+                {% for record in medical_records %}
+                    <div class="p-6 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-base font-medium text-gray-900">{{ record.title }}</h3>
+                                <p class="mt-1 text-sm text-gray-500">{{ record.date|date:"d/m/Y" }} - Dr. {{ record.doctor.get_full_name }}</p>
+                                <p class="mt-2 text-sm text-gray-600">{{ record.description }}</p>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                {% if record.file %}
+                                    <a href="{{ record.file.url }}" class="text-primary hover:text-primary-dark">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                {% endif %}
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="p-6 text-center text-gray-500">
+                    Aucun dossier médical récent
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

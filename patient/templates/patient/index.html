@@ -1,0 +1,202 @@
+{% extends 'patient/base.html' %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<!-- Welcome Section -->
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Bonjour, {{ user.first_name|default:user.username }}</h1>
+    <p class="mt-1 text-sm text-gray-500">Voici un aperçu de votre espace santé</p>
+</div>
+
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Prochain RDV -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="bg-primary bg-opacity-10 rounded-lg p-2">
+                <i class="fas fa-calendar-check text-primary text-xl"></i>
+            </div>
+            <span class="text-sm font-medium text-primary">Aujourd'hui</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-1">Prochain rendez-vous</h3>
+        <p class="text-sm text-gray-500">14:30 - Dr. Martin</p>
+    </div>
+
+    <!-- Messages non lus -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="bg-blue-50 rounded-lg p-2">
+                <i class="fas fa-envelope text-blue-500 text-xl"></i>
+            </div>
+            <span class="text-sm font-medium text-blue-500">2 nouveaux</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-1">Messages non lus</h3>
+        <p class="text-sm text-gray-500">De vos praticiens</p>
+    </div>
+
+    <!-- Ordonnances -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="bg-green-50 rounded-lg p-2">
+                <i class="fas fa-prescription text-green-500 text-xl"></i>
+            </div>
+            <span class="text-sm font-medium text-green-500">1 en cours</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-1">Ordonnances actives</h3>
+        <p class="text-sm text-gray-500">À renouveler le 15/09</p>
+    </div>
+
+    <!-- Documents -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="bg-purple-50 rounded-lg p-2">
+                <i class="fas fa-folder text-purple-500 text-xl"></i>
+            </div>
+            <span class="text-sm font-medium text-purple-500">3 récents</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-1">Documents médicaux</h3>
+        <p class="text-sm text-gray-500">Résultats d'analyses</p>
+    </div>
+</div>
+
+<!-- Upcoming Appointments -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+    <div class="p-6 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-900">Prochains rendez-vous</h2>
+            <a href="" class="text-sm text-primary hover:text-primary-dark font-medium">
+                Voir tous
+                <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+    <div class="divide-y divide-gray-200">
+        <div class="p-6">
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-16 text-center">
+                    <div class="text-lg font-bold text-gray-900">15</div>
+                    <div class="text-xs font-medium text-gray-500 uppercase">Sept</div>
+                </div>
+                <div class="ml-6">
+                    <h3 class="text-base font-semibold text-gray-900">Consultation générale</h3>
+                    <div class="mt-1 flex items-center text-sm text-gray-500">
+                        <i class="fas fa-clock mr-2"></i>
+                        14:30 - 15:00
+                    </div>
+                    <div class="mt-1 flex items-center text-sm text-gray-500">
+                        <i class="fas fa-user-md mr-2"></i>
+                        Dr. Martin - Cabinet médical
+                    </div>
+                </div>
+                <div class="ml-auto">
+                    <button class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Messages récents -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">Messages récents</h2>
+                <a href="" class="text-sm text-primary hover:text-primary-dark font-medium">
+                    Voir tous
+                    <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+        <div class="divide-y divide-gray-200">
+            <div class="p-6">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-semibold text-gray-900">Dr. Martin</h3>
+                            <span class="text-xs text-gray-500">Il y a 2h</span>
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">Suite à votre consultation d'hier, je vous confirme...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documents récents -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">Documents récents</h2>
+                <a href="" class="text-sm text-primary hover:text-primary-dark font-medium">
+                    Voir tous
+                    <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+        <div class="divide-y divide-gray-200">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 rounded-lg bg-red-50 text-red-500 flex items-center justify-center">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-semibold text-gray-900">Résultats analyses sang</h3>
+                            <span class="text-xs text-gray-500">03 sept.</span>
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">Laboratoire Central</p>
+                    </div>
+                    <button class="ml-4 text-sm text-primary hover:text-primary-dark">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Health Tips -->
+<div class="mt-8 bg-primary bg-opacity-5 rounded-xl p-6">
+    <div class="flex items-start">
+        <div class="flex-shrink-0">
+            <div class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center">
+                <i class="fas fa-heart text-xl"></i>
+            </div>
+        </div>
+        <div class="ml-4">
+            <h2 class="text-lg font-semibold text-gray-900">Conseil santé du jour</h2>
+            <p class="mt-2 text-sm text-gray-600">
+                N'oubliez pas de boire suffisamment d'eau tout au long de la journée pour rester bien hydraté. 
+                La recommandation générale est de boire environ 1,5 à 2 litres d'eau par jour.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Animation des cartes statistiques
+    document.addEventListener('DOMContentLoaded', function() {
+        const stats = document.querySelectorAll('.bg-white.rounded-xl');
+        stats.forEach((stat, index) => {
+            setTimeout(() => {
+                stat.classList.add('transform', 'translate-y-0', 'opacity-100');
+                stat.classList.remove('translate-y-4', 'opacity-0');
+            }, index * 100);
+        });
+    });
+</script>
+{% endblock %}

@@ -111,9 +111,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'server.wsgi.application'
 
 # Database
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"postgres://postgres:    @localhost:5432/medical-data-center",
+        default=f"postgres://postgres:1234@localhost:5432/medical-data-center",
         conn_max_age=600,
         ssl_require=False
     )

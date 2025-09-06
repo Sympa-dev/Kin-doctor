@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.contrib.sitemaps.views import sitemap
 from patient.sitemap import PatientStaticViewSitemap
 from doctors.sitemap import DoctorStaticViewSitemap
+from django.shortcuts import redirect
 
 sitemaps = {
     'patient': PatientStaticViewSitemap,
@@ -26,6 +27,7 @@ sitemaps = {
 }
 
 urlpatterns = [
+    path('', lambda request: redirect('accounts:login'), name='root_redirect'),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('core/', include('core.urls')),

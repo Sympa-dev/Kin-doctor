@@ -6,11 +6,9 @@ from django.contrib.auth.password_validation import validate_password
 from django.db import IntegrityError
 from .models import User
 
-
 # ----------------------------
 # Vue d'inscription (Patient & Doctor)
 # ----------------------------
-
 def register(request, *args, **kwargs):
     if request.method == 'POST':
         try:
@@ -25,7 +23,6 @@ def register(request, *args, **kwargs):
             # -------------------
             # VALIDATIONS
             # -------------------
-
             if not username:
                 messages.error(request, "Le nom d'utilisateur est requis.")
                 return redirect('accounts:register')
@@ -65,7 +62,6 @@ def register(request, *args, **kwargs):
             # -------------------
             # CRÉATION UTILISATEUR
             # -------------------
-
             user = User.objects.create_user(
                 username=username,
                 email=email,
@@ -75,16 +71,9 @@ def register(request, *args, **kwargs):
             )
 
             # Initialiser les rôles
-            user.is_patient = role == 'patient'
-            user.is_doctor = role == 'doctor'
-            user.is_admin = role == 'admin'
-
-            if role == 'patient':
-                user.is_patient = True
-            elif role == 'doctor':
-                user.is_doctor = True
-            else:
-                user.is_admin = True  # Rôle admin pour tests initiaux
+            user.is_patient = (role == 'patient')
+            user.is_doctor = (role == 'doctor')
+            # user.is_admin n'est pas géré ici car non proposé dans le formulaire
 
             user.is_active = True
             user.save()
@@ -108,11 +97,9 @@ def register(request, *args, **kwargs):
         ]
     })
 
-
 # ----------------------------
 # Vue de connexion
 # ----------------------------
-
 def login_view(request, *args, **kwargs):
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -129,13 +116,13 @@ def login_view(request, *args, **kwargs):
                 login(request, user)
 
                 # Redirection selon rôle
-
-                if user.is_patient:
+                if getattr(user, 'is_patient', False):
                     return redirect('patient:dashboard')
-                elif user.is_doctor:
+                elif getattr(user, 'is_doctor', False):
                     return redirect('doctors:dashboard')
-                elif user.is_admin:
-                    return redirect('admin_dashboard')
+                # Si tu veux gérer un admin, décommente la ligne suivante et adapte la vue cible
+                # elif getattr(user, 'is_admin', False):
+                #     return redirect('admin_dashboard')
                 else:
                     messages.error(request, "Votre rôle est invalide, contactez l’administrateur.")
                     return redirect('accounts:login')
@@ -147,7 +134,6 @@ def login_view(request, *args, **kwargs):
             return redirect('accounts:login')
 
     return render(request, 'accounts/login.html')
-
 
 # ----------------------------
 # Vue de déconnexion

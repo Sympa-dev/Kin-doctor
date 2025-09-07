@@ -37,6 +37,7 @@
 
     <style>
         /* Styles personnalisés qui ne peuvent pas être gérés par Tailwind */
+        :root {
             --primary-color: #00B5B8;
             --primary-dark: #009597;
             --primary-light: #33C3C6;
@@ -48,6 +49,77 @@
             --text-primary: #1F2937;
             --text-secondary: #4B5563;
             --text-muted: #9CA3AF;
+        }
+
+        /* Styles pour les notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            opacity: 0;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            color: white;
+        }
+
+        .notification.warning {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: white;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .notification-message {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
             --bg-light: #F9FAFB;
             --bg-white: #FFFFFF;
             --border-color: #E5E7EB;
@@ -228,35 +300,48 @@
                         <i class="fas fa-bars"></i>
                     </button>
                     <a href="" class="flex-shrink-0">
-                        <img class="h-10 w-auto" src="{% static 'media/log-kin.png' %}" alt="Kin-Doctor">
+                        <img class="h-10 w-auto" src="{% static 'media/kin.png' %}" alt="Kin-Doctor">
                     </a>
                 </div>
 
                 <div class="flex items-center space-x-4">
                     <!-- Notifications -->
                     <div class="relative">
-                        <button data-dropdown="notifications" class="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-gray-100 focus:outline-none" type="button">
+                        <button onclick="toggleNotificationsDropdown()" 
+                                class="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-gray-100 focus:outline-none relative" 
+                                type="button">
                             <i class="fas fa-bell text-xl"></i>
-                            <span class="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center bg-red-500 text-white text-xs rounded-full">
-                                2
+                            <span id="notification-badge" class="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center bg-red-500 text-white text-xs rounded-full hidden">
+                                0
                             </span>
                         </button>
-                        <div data-dropdown-menu="notifications" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 hidden">
+                        <div id="notifications-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 hidden z-50">
                             <div class="p-4 border-b border-gray-200">
-                                <h6 class="text-sm font-semibold text-gray-900">Notifications</h6>
-                            </div>
-                            <div class="divide-y divide-gray-200">
-                                <a href="#" class="block p-4 hover:bg-gray-50 transition duration-150 ease-in-out">
-                                    <div class="flex space-x-4">
-                                        <div class="flex-shrink-0">
-                                            <i class="fas fa-calendar-check text-primary text-xl"></i>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-medium text-gray-900">Rappel de rendez-vous</p>
-                                            <p class="text-sm text-gray-500">Demain à 14h00 avec Dr. Martin</p>
-                                            <p class="text-xs text-gray-400 mt-1">Il y a 1 heure</p>
-                                        </div>
+                                <div class="flex items-center justify-between">
+                                    <h6 class="text-sm font-semibold text-gray-900">Notifications</h6>
+                                    <div class="flex space-x-2">
+                                        <button onclick="markAllAsRead()" 
+                                                class="text-xs text-primary hover:text-primary-dark">
+                                            Tout marquer comme lu
+                                        </button>
+                                        <a href="{% url 'notifications_list' %}" 
+                                           class="text-xs text-primary hover:text-primary-dark">
+                                            Voir tout
+                                        </a>
                                     </div>
+                                </div>
+                            </div>
+                            <div id="notifications-list" class="max-h-96 overflow-y-auto">
+                                <!-- Les notifications seront chargées ici via AJAX -->
+                                <div class="p-4 text-center text-gray-500">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Chargement...
+                                </div>
+                            </div>
+                            <div class="p-4 border-t border-gray-200 text-center">
+                                <a href="{% url 'notifications_list' %}" 
+                                   class="text-sm text-primary hover:text-primary-dark">
+                                    Voir toutes les notifications
                                 </a>
                             </div>
                         </div>
@@ -315,6 +400,11 @@
                    class="group flex items-center px-6 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'patient_appointments' %}text-primary bg-primary bg-opacity-5 border-l-4 border-primary{% else %}text-gray-600 hover:text-primary hover:bg-gray-50 border-l-4 border-transparent{% endif %}">
                     <i class="fas fa-calendar-alt w-5 h-5 mr-3"></i>
                     <span>Mes rendez-vous</span>
+                </a>
+                <a href="{% url 'patient:all_notifications' %}" 
+                   class="group flex items-center px-6 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'patient_all_notifications' %}text-primary bg-primary bg-opacity-5 border-l-4 border-primary{% else %}text-gray-600 hover:text-primary hover:bg-gray-50 border-l-4 border-transparent{% endif %}">
+                    <i class="fas fa-bell-slash w-5 h-5 mr-3"></i>
+                    <span>Toutes mes notifications</span>
                 </a>
                 <a href="{% url 'patient:medical_records' %}" 
                    class="group flex items-center px-6 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'patient_medical_records' %}text-primary bg-primary bg-opacity-5 border-l-4 border-primary{% else %}text-gray-600 hover:text-primary hover:bg-gray-50 border-l-4 border-transparent{% endif %}">
@@ -390,6 +480,117 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 
     <script>
+        // Système de notifications global
+        class NotificationManager {
+            constructor() {
+                this.notifications = [];
+                this.container = this.createContainer();
+            }
+
+            createContainer() {
+                const container = document.createElement('div');
+                container.id = 'notification-container';
+                container.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 9999;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(container);
+                return container;
+            }
+
+            show(message, type = 'info', duration = 5000) {
+                const notification = this.createNotification(message, type);
+                this.container.appendChild(notification);
+                this.notifications.push(notification);
+
+                // Animation d'entrée
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 100);
+
+                // Auto-suppression
+                if (duration > 0) {
+                    setTimeout(() => {
+                        this.hide(notification);
+                    }, duration);
+                }
+
+                return notification;
+            }
+
+            createNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                const icons = {
+                    success: 'fa-check-circle',
+                    error: 'fa-exclamation-circle',
+                    warning: 'fa-exclamation-triangle',
+                    info: 'fa-info-circle'
+                };
+
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <i class="fas ${icons[type] || icons.info} notification-icon"></i>
+                        <span class="notification-message">${message}</span>
+                        <button class="notification-close" onclick="notificationManager.hide(this.parentElement.parentElement)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+
+                return notification;
+            }
+
+            hide(notification) {
+                if (!notification) return;
+                
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.parentElement.removeChild(notification);
+                    }
+                    const index = this.notifications.indexOf(notification);
+                    if (index > -1) {
+                        this.notifications.splice(index, 1);
+                    }
+                }, 300);
+            }
+
+            clear() {
+                this.notifications.forEach(notification => {
+                    this.hide(notification);
+                });
+            }
+        }
+
+        // Instance globale
+        const notificationManager = new NotificationManager();
+
+        // Fonctions utilitaires globales
+        function showNotification(message, type = 'info', duration = 5000) {
+            return notificationManager.show(message, type, duration);
+        }
+
+        function showSuccess(message, duration = 5000) {
+            return notificationManager.show(message, 'success', duration);
+        }
+
+        function showError(message, duration = 7000) {
+            return notificationManager.show(message, 'error', duration);
+        }
+
+        function showWarning(message, duration = 6000) {
+            return notificationManager.show(message, 'warning', duration);
+        }
+
+        function showInfo(message, duration = 5000) {
+            return notificationManager.show(message, 'info', duration);
+        }
+
         // Sidebar toggle
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebarBackdrop');
@@ -464,6 +665,183 @@
             button.addEventListener('click', () => {
                 button.closest('[role="alert"]').remove();
             });
+        });
+
+        // ===== SYSTÈME DE NOTIFICATIONS =====
+        
+        // Variables globales pour les notifications
+        let notificationsDropdownOpen = false;
+        let notificationsLoaded = false;
+        
+        // Toggle du dropdown des notifications
+        function toggleNotificationsDropdown() {
+            const dropdown = document.getElementById('notifications-dropdown');
+            const badge = document.getElementById('notification-badge');
+            
+            if (notificationsDropdownOpen) {
+                dropdown.classList.add('hidden');
+                notificationsDropdownOpen = false;
+            } else {
+                dropdown.classList.remove('hidden');
+                notificationsDropdownOpen = true;
+                
+                // Charger les notifications si pas encore fait
+                if (!notificationsLoaded) {
+                    loadNotifications();
+                }
+            }
+        }
+        
+        // Charger les notifications via AJAX
+        async function loadNotifications() {
+            try {
+                const response = await fetch('/core/api/notifications/', {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    displayNotifications(data.notifications);
+                    updateNotificationBadge(data.unread_count);
+                    notificationsLoaded = true;
+                } else {
+                    console.error('Erreur lors du chargement des notifications:', data.message);
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des notifications:', error);
+            }
+        }
+        
+        // Afficher les notifications dans le dropdown
+        function displayNotifications(notifications) {
+            const container = document.getElementById('notifications-list');
+            
+            if (notifications.length === 0) {
+                container.innerHTML = `
+                    <div class="p-4 text-center text-gray-500">
+                        <i class="fas fa-bell-slash text-2xl mb-2"></i>
+                        <p>Aucune notification</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const notificationsHtml = notifications.map(notification => `
+                <div class="p-4 border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 ${notification.color_class} rounded-full flex items-center justify-center">
+                                <i class="fas ${notification.icon}"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-gray-900">${notification.title}</p>
+                                ${notification.is_important ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><i class="fas fa-exclamation-triangle mr-1"></i>Important</span>' : ''}
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">${notification.message}</p>
+                            <div class="flex items-center justify-between mt-2">
+                                <p class="text-xs text-gray-400">${notification.created_at}</p>
+                                <div class="flex space-x-2">
+                                    ${notification.action_url ? `<a href="${notification.action_url}" class="text-xs text-primary hover:text-primary-dark">${notification.action_text || 'Voir'}</a>` : ''}
+                                    ${!notification.is_read ? `<button onclick="markNotificationAsRead(${notification.id})" class="text-xs text-gray-500 hover:text-gray-700">Marquer comme lu</button>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = notificationsHtml;
+        }
+        
+        // Mettre à jour le badge de notification
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notification-badge');
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+        
+        // Marquer une notification comme lue
+        async function markNotificationAsRead(notificationId) {
+            try {
+                const response = await fetch(`/core/api/notifications/${notificationId}/read/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Recharger les notifications
+                    loadNotifications();
+                    showSuccess('Notification marquée comme lue');
+                } else {
+                    showError(data.message);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showError('Erreur lors de la mise à jour de la notification');
+            }
+        }
+        
+        // Marquer toutes les notifications comme lues
+        async function markAllAsRead() {
+            try {
+                const response = await fetch('/core/api/notifications/read-all/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Recharger les notifications
+                    loadNotifications();
+                    showSuccess(data.message);
+                } else {
+                    showError(data.message);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showError('Erreur lors de la mise à jour des notifications');
+            }
+        }
+        
+        // Fonction pour récupérer le cookie CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Charger les notifications au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNotifications();
         });
     </script>
 

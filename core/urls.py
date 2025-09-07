@@ -47,6 +47,13 @@ urlpatterns = [
 
    # Appointment
    path('appoitement/', appoitement, name='appoitement'),
-   path('plan_rdv/', plan_appoint, name="plan_appoint")
+   path('plan_rdv/', plan_appoint, name="plan_appoint"),
+   
+   # Notifications
+   path('notifications/', notifications_list, name='notifications_list'),
+   path('api/notifications/', notifications_api, name='notifications_api'),
+   path('api/notifications/<int:notification_id>/read/', mark_notification_read, name='mark_notification_read'),
+   path('api/notifications/read-all/', mark_all_notifications_read, name='mark_all_notifications_read'),
+   path('api/notifications/<int:notification_id>/delete/', delete_notification, name='delete_notification'),
 ]
 

@@ -743,3 +743,175 @@ class Patient(models.Model):
         ordering = ["-created_at"]
         verbose_name = "Patient"
         verbose_name_plural = "Patients"
+
+
+class Notification(models.Model):
+    """
+    Modèle pour stocker toutes les notifications du système
+    """
+    NOTIFICATION_TYPES = [
+        ('success', 'Succès'),
+        ('error', 'Erreur'),
+        ('warning', 'Avertissement'),
+        ('info', 'Information'),
+    ]
+    
+    NOTIFICATION_CATEGORIES = [
+        ('appointment', 'Rendez-vous'),
+        ('prescription', 'Prescription'),
+        ('billing', 'Facturation'),
+        ('medical_record', 'Dossier médical'),
+        ('system', 'Système'),
+        ('reminder', 'Rappel'),
+        ('emergency', 'Urgence'),
+    ]
+    
+    # Relations
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='notifications',
+        null=True, 
+        blank=True,
+        help_text="Utilisateur destinataire de la notification"
+    )
+    patient = models.ForeignKey(
+        Patients, 
+        on_delete=models.CASCADE, 
+        related_name='notifications',
+        null=True, 
+        blank=True,
+        help_text="Patient destinataire de la notification"
+    )
+    doctor = models.ForeignKey(
+        Doctor, 
+        on_delete=models.CASCADE, 
+        related_name='notifications',
+        null=True, 
+        blank=True,
+        help_text="Médecin concerné par la notification"
+    )
+    
+    # Contenu de la notification
+    title = models.CharField(
+        max_length=200, 
+        help_text="Titre de la notification"
+    )
+    message = models.TextField(
+        help_text="Message de la notification"
+    )
+    notification_type = models.CharField(
+        max_length=20, 
+        choices=NOTIFICATION_TYPES,
+        default='info',
+        help_text="Type de notification (success, error, warning, info)"
+    )
+    category = models.CharField(
+        max_length=30, 
+        choices=NOTIFICATION_CATEGORIES,
+        default='system',
+        help_text="Catégorie de la notification"
+    )
+    
+    # État de la notification
+    is_read = models.BooleanField(
+        default=False,
+        help_text="Indique si la notification a été lue"
+    )
+    is_important = models.BooleanField(
+        default=False,
+        help_text="Indique si la notification est importante"
+    )
+    is_system_generated = models.BooleanField(
+        default=True,
+        help_text="Indique si la notification est générée automatiquement par le système"
+    )
+    
+    # Métadonnées
+    action_url = models.URLField(
+        blank=True, 
+        null=True,
+        help_text="URL vers laquelle rediriger lors du clic sur la notification"
+    )
+    action_text = models.CharField(
+        max_length=100, 
+        blank=True,
+        help_text="Texte du bouton d'action"
+    )
+    
+    # Données supplémentaires (JSON)
+    extra_data = models.JSONField(
+        default=dict, 
+        blank=True,
+        help_text="Données supplémentaires au format JSON"
+    )
+    
+    # Timestamps
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Date de création de la notification"
+    )
+    read_at = models.DateTimeField(
+        null=True, 
+        blank=True,
+        help_text="Date de lecture de la notification"
+    )
+    expires_at = models.DateTimeField(
+        null=True, 
+        blank=True,
+        help_text="Date d'expiration de la notification"
+    )
+    
+    def __str__(self):
+        return f"{self.get_notification_type_display()} - {self.title}"
+    
+    def mark_as_read(self):
+        """Marquer la notification comme lue"""
+        if not self.is_read:
+            self.is_read = True
+            self.read_at = timezone.now()
+            self.save(update_fields=['is_read', 'read_at'])
+    
+    def mark_as_unread(self):
+        """Marquer la notification comme non lue"""
+        if self.is_read:
+            self.is_read = False
+            self.read_at = None
+            self.save(update_fields=['is_read', 'read_at'])
+    
+    def is_expired(self):
+        """Vérifier si la notification est expirée"""
+        if self.expires_at:
+            return timezone.now() > self.expires_at
+        return False
+    
+    def get_icon(self):
+        """Retourner l'icône appropriée selon le type"""
+        icons = {
+            'success': 'fa-check-circle',
+            'error': 'fa-exclamation-circle',
+            'warning': 'fa-exclamation-triangle',
+            'info': 'fa-info-circle',
+        }
+        return icons.get(self.notification_type, 'fa-bell')
+    
+    def get_color_class(self):
+        """Retourner la classe CSS appropriée selon le type"""
+        colors = {
+            'success': 'text-green-600 bg-green-100',
+            'error': 'text-red-600 bg-red-100',
+            'warning': 'text-yellow-600 bg-yellow-100',
+            'info': 'text-blue-600 bg-blue-100',
+        }
+        return colors.get(self.notification_type, 'text-gray-600 bg-gray-100')
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Notification"
+        verbose_name_plural = "Notifications"
+        indexes = [
+            models.Index(fields=['user', 'is_read']),
+            models.Index(fields=['patient', 'is_read']),
+            models.Index(fields=['notification_type', 'category']),
+            models.Index(fields=['created_at']),
+        ]

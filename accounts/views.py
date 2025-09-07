@@ -62,18 +62,22 @@ def register(request, *args, **kwargs):
             # -------------------
             # CRÉATION UTILISATEUR
             # -------------------
+
+            # Initialiser les rôles
+            user = User()
+            user.is_patient = (role == 'patient')
+            user.is_doctor = (role == 'doctor')
+            user.is_admin = (role == 'admin')
+
             user = User.objects.create_user(
                 username=username,
                 email=email,
                 password=password,
                 first_name=first_name,
-                last_name=last_name
+                last_name=last_name,
+                role=role
             )
 
-            # Initialiser les rôles
-            user.is_patient = (role == 'patient')
-            user.is_doctor = (role == 'doctor')
-            # user.is_admin n'est pas géré ici car non proposé dans le formulaire
 
             user.is_active = True
             user.save()

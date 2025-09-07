@@ -1,0 +1,612 @@
+{% extends 'patient/base.html' %}
+{% load static %}
+
+{% block title %}Toutes mes Notifications{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- En-tête -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-bell w-5 h-5 mr-3"></i>
+                        Toutes mes Notifications
+                    </h3>
+                    <p class="text-gray-600">
+                        Consultez toutes vos notifications et restez informé de vos activités médicales
+                    </p>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="markAllAsRead()" 
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <i class="fas fa-check-double mr-2"></i>
+                        Tout marquer comme lu
+                    </button>
+                    <button onclick="refreshNotifications()" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        Actualiser
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-bell text-red-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Non lues</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ total_unread }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-calendar-alt text-blue-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Rendez-vous</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ appointment_notifications.count }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-prescription text-green-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Ordonnances</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ prescription_notifications.count }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-list text-purple-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Total</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ total_notifications }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation par onglets -->
+        <div class="bg-white rounded-lg shadow-md mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8 px-6">
+                    <button onclick="showTab('all')" id="all-tab" class="tab-button active py-4 px-1 border-b-2 border-primary font-medium text-sm text-primary">
+                        <i class="fas fa-list mr-2"></i>
+                        Toutes ({{ total_notifications }})
+                    </button>
+                    <button onclick="showTab('unread')" id="unread-tab" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-bell mr-2"></i>
+                        Non lues ({{ total_unread }})
+                    </button>
+                    <button onclick="showTab('appointments')" id="appointments-tab" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-calendar-alt mr-2"></i>
+                        Rendez-vous ({{ appointment_notifications.count }})
+                    </button>
+                    <button onclick="showTab('prescriptions')" id="prescriptions-tab" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-prescription mr-2"></i>
+                        Ordonnances ({{ prescription_notifications.count }})
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Contenu des onglets -->
+        <div class="space-y-6">
+            <!-- Toutes les notifications -->
+            <div id="all-content" class="tab-content">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="p-6">
+                        {% if unread_notifications or read_notifications %}
+                            <div class="space-y-4">
+                                <!-- Notifications non lues -->
+                                {% for notification in unread_notifications %}
+                                <div class="notification-item border-l-4 border-red-500 bg-red-50 rounded-lg p-4 hover:bg-red-100 transition-colors" 
+                                     data-notification-id="{{ notification.id }}">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 {{ notification.get_color_class }} rounded-full flex items-center justify-center">
+                                                <i class="fas {{ notification.get_icon }}"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4 flex-1">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <h3 class="text-sm font-medium text-gray-900">{{ notification.title }}</h3>
+                                                    <p class="text-sm text-gray-600 mt-1">{{ notification.message }}</p>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    {% if notification.is_important %}
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                        Important
+                                                    </span>
+                                                    {% endif %}
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        {{ notification.get_category_display }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3 flex items-center justify-between">
+                                                <div class="flex items-center text-sm text-gray-500">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    {{ notification.created_at|date:"d/m/Y H:i" }}
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    {% if notification.action_url %}
+                                                    <a href="{{ notification.action_url }}" 
+                                                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-primary bg-primary bg-opacity-10 hover:bg-opacity-20">
+                                                        {{ notification.action_text|default:"Voir" }}
+                                                    </a>
+                                                    {% endif %}
+                                                    <button onclick="markAsRead({{ notification.id }})" 
+                                                            class="inline-flex items-center px-3 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                                        <i class="fas fa-check mr-1"></i>
+                                                        Marquer comme lu
+                                                    </button>
+                                                    <button onclick="deleteNotification({{ notification.id }})" 
+                                                            class="inline-flex items-center px-3 py-1 border border-red-300 text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50">
+                                                        <i class="fas fa-trash mr-1"></i>
+                                                        Supprimer
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                
+                                <!-- Notifications lues -->
+                                {% for notification in read_notifications %}
+                                <div class="notification-item border-l-4 border-gray-300 bg-gray-50 rounded-lg p-4 opacity-75 hover:opacity-100 transition-all" 
+                                     data-notification-id="{{ notification.id }}">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 {{ notification.get_color_class }} rounded-full flex items-center justify-center">
+                                                <i class="fas {{ notification.get_icon }}"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4 flex-1">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <h3 class="text-sm font-medium text-gray-900">{{ notification.title }}</h3>
+                                                    <p class="text-sm text-gray-600 mt-1">{{ notification.message }}</p>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    {% if notification.is_important %}
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                        Important
+                                                    </span>
+                                                    {% endif %}
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        {{ notification.get_category_display }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3 flex items-center justify-between">
+                                                <div class="flex items-center text-sm text-gray-500">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    {{ notification.created_at|date:"d/m/Y H:i" }}
+                                                    {% if notification.read_at %}
+                                                    <span class="ml-2 text-green-600">
+                                                        <i class="fas fa-check mr-1"></i>
+                                                        Lu le {{ notification.read_at|date:"d/m/Y H:i" }}
+                                                    </span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    {% if notification.action_url %}
+                                                    <a href="{{ notification.action_url }}" 
+                                                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-primary bg-primary bg-opacity-10 hover:bg-opacity-20">
+                                                        {{ notification.action_text|default:"Voir" }}
+                                                    </a>
+                                                    {% endif %}
+                                                    <button onclick="deleteNotification({{ notification.id }})" 
+                                                            class="inline-flex items-center px-3 py-1 border border-red-300 text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50">
+                                                        <i class="fas fa-trash mr-1"></i>
+                                                        Supprimer
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-12">
+                                <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-bell-slash text-gray-400 text-3xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune notification</h3>
+                                <p class="text-gray-500">Vous n'avez pas encore de notifications.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications non lues -->
+            <div id="unread-content" class="tab-content hidden">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="p-6">
+                        {% if unread_notifications %}
+                            <div class="space-y-4">
+                                {% for notification in unread_notifications %}
+                                <div class="notification-item border-l-4 border-red-500 bg-red-50 rounded-lg p-4 hover:bg-red-100 transition-colors" 
+                                     data-notification-id="{{ notification.id }}">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 {{ notification.get_color_class }} rounded-full flex items-center justify-center">
+                                                <i class="fas {{ notification.get_icon }}"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4 flex-1">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <h3 class="text-sm font-medium text-gray-900">{{ notification.title }}</h3>
+                                                    <p class="text-sm text-gray-600 mt-1">{{ notification.message }}</p>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    {% if notification.is_important %}
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                        Important
+                                                    </span>
+                                                    {% endif %}
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        {{ notification.get_category_display }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3 flex items-center justify-between">
+                                                <div class="flex items-center text-sm text-gray-500">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    {{ notification.created_at|date:"d/m/Y H:i" }}
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    {% if notification.action_url %}
+                                                    <a href="{{ notification.action_url }}" 
+                                                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-primary bg-primary bg-opacity-10 hover:bg-opacity-20">
+                                                        {{ notification.action_text|default:"Voir" }}
+                                                    </a>
+                                                    {% endif %}
+                                                    <button onclick="markAsRead({{ notification.id }})" 
+                                                            class="inline-flex items-center px-3 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                                        <i class="fas fa-check mr-1"></i>
+                                                        Marquer comme lu
+                                                    </button>
+                                                    <button onclick="deleteNotification({{ notification.id }})" 
+                                                            class="inline-flex items-center px-3 py-1 border border-red-300 text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50">
+                                                        <i class="fas fa-trash mr-1"></i>
+                                                        Supprimer
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-12">
+                                <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-bell-slash text-gray-400 text-3xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune notification non lue</h3>
+                                <p class="text-gray-500">Vous êtes à jour !</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications de rendez-vous -->
+            <div id="appointments-content" class="tab-content hidden">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="p-6">
+                        {% if appointment_notifications %}
+                            <div class="space-y-4">
+                                {% for notification in appointment_notifications %}
+                                <div class="notification-item border-l-4 border-blue-500 bg-blue-50 rounded-lg p-4 hover:bg-blue-100 transition-colors" 
+                                     data-notification-id="{{ notification.id }}">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 {{ notification.get_color_class }} rounded-full flex items-center justify-center">
+                                                <i class="fas {{ notification.get_icon }}"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4 flex-1">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <h3 class="text-sm font-medium text-gray-900">{{ notification.title }}</h3>
+                                                    <p class="text-sm text-gray-600 mt-1">{{ notification.message }}</p>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    {% if notification.is_important %}
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                        Important
+                                                    </span>
+                                                    {% endif %}
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        Rendez-vous
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3 flex items-center justify-between">
+                                                <div class="flex items-center text-sm text-gray-500">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    {{ notification.created_at|date:"d/m/Y H:i" }}
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    {% if notification.action_url %}
+                                                    <a href="{{ notification.action_url }}" 
+                                                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-primary bg-primary bg-opacity-10 hover:bg-opacity-20">
+                                                        {{ notification.action_text|default:"Voir" }}
+                                                    </a>
+                                                    {% endif %}
+                                                    {% if not notification.is_read %}
+                                                    <button onclick="markAsRead({{ notification.id }})" 
+                                                            class="inline-flex items-center px-3 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                                        <i class="fas fa-check mr-1"></i>
+                                                        Marquer comme lu
+                                                    </button>
+                                                    {% endif %}
+                                                    <button onclick="deleteNotification({{ notification.id }})" 
+                                                            class="inline-flex items-center px-3 py-1 border border-red-300 text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50">
+                                                        <i class="fas fa-trash mr-1"></i>
+                                                        Supprimer
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-12">
+                                <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-calendar-alt text-gray-400 text-3xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune notification de rendez-vous</h3>
+                                <p class="text-gray-500">Vous n'avez pas de notifications liées aux rendez-vous.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications d'ordonnances -->
+            <div id="prescriptions-content" class="tab-content hidden">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="p-6">
+                        {% if prescription_notifications %}
+                            <div class="space-y-4">
+                                {% for notification in prescription_notifications %}
+                                <div class="notification-item border-l-4 border-green-500 bg-green-50 rounded-lg p-4 hover:bg-green-100 transition-colors" 
+                                     data-notification-id="{{ notification.id }}">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 {{ notification.get_color_class }} rounded-full flex items-center justify-center">
+                                                <i class="fas {{ notification.get_icon }}"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4 flex-1">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <h3 class="text-sm font-medium text-gray-900">{{ notification.title }}</h3>
+                                                    <p class="text-sm text-gray-600 mt-1">{{ notification.message }}</p>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    {% if notification.is_important %}
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                        Important
+                                                    </span>
+                                                    {% endif %}
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        Ordonnance
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3 flex items-center justify-between">
+                                                <div class="flex items-center text-sm text-gray-500">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    {{ notification.created_at|date:"d/m/Y H:i" }}
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    {% if notification.action_url %}
+                                                    <a href="{{ notification.action_url }}" 
+                                                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-primary bg-primary bg-opacity-10 hover:bg-opacity-20">
+                                                        {{ notification.action_text|default:"Voir" }}
+                                                    </a>
+                                                    {% endif %}
+                                                    {% if not notification.is_read %}
+                                                    <button onclick="markAsRead({{ notification.id }})" 
+                                                            class="inline-flex items-center px-3 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                                        <i class="fas fa-check mr-1"></i>
+                                                        Marquer comme lu
+                                                    </button>
+                                                    {% endif %}
+                                                    <button onclick="deleteNotification({{ notification.id }})" 
+                                                            class="inline-flex items-center px-3 py-1 border border-red-300 text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50">
+                                                        <i class="fas fa-trash mr-1"></i>
+                                                        Supprimer
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-12">
+                                <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-prescription text-gray-400 text-3xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune notification d'ordonnance</h3>
+                                <p class="text-gray-500">Vous n'avez pas de notifications liées aux ordonnances.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Gestion des onglets
+function showTab(tabName) {
+    // Masquer tous les contenus
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Désactiver tous les onglets
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active', 'border-primary', 'text-primary');
+        button.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Afficher le contenu sélectionné
+    document.getElementById(tabName + '-content').classList.remove('hidden');
+    
+    // Activer l'onglet sélectionné
+    const activeTab = document.getElementById(tabName + '-tab');
+    activeTab.classList.add('active', 'border-primary', 'text-primary');
+    activeTab.classList.remove('border-transparent', 'text-gray-500');
+}
+
+// Marquer une notification comme lue
+function markAsRead(notificationId) {
+    fetch(`/core/api/notifications/${notificationId}/read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Supprimer la notification de la liste non lue
+            const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            if (notificationElement) {
+                notificationElement.remove();
+            }
+            
+            showSuccess(data.message);
+        } else {
+            showError(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showError('Erreur lors de la mise à jour de la notification');
+    });
+}
+
+// Marquer toutes les notifications comme lues
+function markAllAsRead() {
+    fetch('/core/api/notifications/read-all/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            window.location.reload();
+            showSuccess(data.message);
+        } else {
+            showError(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showError('Erreur lors de la mise à jour des notifications');
+    });
+}
+
+// Supprimer une notification
+function deleteNotification(notificationId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette notification ?')) {
+        fetch(`/core/api/notifications/${notificationId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Supprimer la notification de l'affichage
+                const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                if (notificationElement) {
+                    notificationElement.remove();
+                }
+                
+                showSuccess(data.message);
+            } else {
+                showError(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showError('Erreur lors de la suppression de la notification');
+        });
+    }
+}
+
+// Actualiser les notifications
+function refreshNotifications() {
+    window.location.reload();
+}
+
+// Fonction pour récupérer le cookie CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

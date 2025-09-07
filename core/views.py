@@ -26,6 +26,10 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from django.contrib.auth import get_user_model
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
+import json
 
 # others imports 
 
@@ -1209,6 +1213,250 @@ def plan_appoint(request):
         "doctors": doctors
     }
     return render(request, "core/plan_rdv.html", context)
+
+
+# ===== VUES POUR LE SYSTÈME DE NOTIFICATIONS =====
+
+@login_required
+def notifications_list(request):
+    """Vue pour afficher la liste des notifications de l'utilisateur"""
+    # Récupérer les notifications de l'utilisateur
+    notifications = Notification.objects.filter(
+        Q(user=request.user) | Q(patient__user=request.user)
+    ).order_by('-created_at')
+    
+    # Séparer les notifications lues et non lues
+    unread_notifications = notifications.filter(is_read=False)
+    read_notifications = notifications.filter(is_read=True)
+    
+    context = {
+        'unread_notifications': unread_notifications,
+        'read_notifications': read_notifications,
+        'total_unread': unread_notifications.count(),
+    }
+    
+    return render(request, 'core/notifications.html', context)
+
+
+@login_required
+@require_http_methods(["GET"])
+def notifications_api(request):
+    """API pour récupérer les notifications en AJAX"""
+    try:
+        # Récupérer les notifications de l'utilisateur
+        notifications = Notification.objects.filter(
+            Q(user=request.user) | Q(patient__user=request.user)
+        ).order_by('-created_at')[:20]  # Limiter à 20 notifications récentes
+        
+        notifications_data = []
+        for notification in notifications:
+            notifications_data.append({
+                'id': notification.id,
+                'title': notification.title,
+                'message': notification.message,
+                'type': notification.notification_type,
+                'category': notification.category,
+                'is_read': notification.is_read,
+                'is_important': notification.is_important,
+                'created_at': notification.created_at.strftime('%d/%m/%Y %H:%M'),
+                'icon': notification.get_icon(),
+                'color_class': notification.get_color_class(),
+                'action_url': notification.action_url,
+                'action_text': notification.action_text,
+                'is_expired': notification.is_expired(),
+            })
+        
+        return JsonResponse({
+            'status': 'success',
+            'notifications': notifications_data,
+            'unread_count': Notification.objects.filter(
+                Q(user=request.user) | Q(patient__user=request.user),
+                is_read=False
+            ).count()
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        })
+
+
+@login_required
+@require_http_methods(["POST"])
+def mark_notification_read(request, notification_id):
+    """Marquer une notification comme lue"""
+    try:
+        notification = get_object_or_404(
+            Notification,
+            Q(user=request.user) | Q(patient__user=request.user),
+            id=notification_id
+        )
+        
+        notification.mark_as_read()
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Notification marquée comme lue'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        })
+
+
+@login_required
+@require_http_methods(["POST"])
+def mark_all_notifications_read(request):
+    """Marquer toutes les notifications comme lues"""
+    try:
+        notifications = Notification.objects.filter(
+            Q(user=request.user) | Q(patient__user=request.user),
+            is_read=False
+        )
+        
+        for notification in notifications:
+            notification.mark_as_read()
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': f'{notifications.count()} notifications marquées comme lues'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        })
+
+
+@login_required
+@require_http_methods(["DELETE"])
+def delete_notification(request, notification_id):
+    """Supprimer une notification"""
+    try:
+        notification = get_object_or_404(
+            Notification,
+            Q(user=request.user) | Q(patient__user=request.user),
+            id=notification_id
+        )
+        
+        notification.delete()
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Notification supprimée'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        })
+
+
+def create_notification(user=None, patient=None, doctor=None, title="", message="", 
+                       notification_type="info", category="system", is_important=False,
+                       action_url=None, action_text=None, extra_data=None, expires_at=None):
+    """
+    Fonction utilitaire pour créer une notification
+    """
+    try:
+        notification = Notification.objects.create(
+            user=user,
+            patient=patient,
+            doctor=doctor,
+            title=title,
+            message=message,
+            notification_type=notification_type,
+            category=category,
+            is_important=is_important,
+            action_url=action_url,
+            action_text=action_text,
+            extra_data=extra_data or {},
+            expires_at=expires_at
+        )
+        return notification
+    except Exception as e:
+        print(f"Erreur lors de la création de la notification: {e}")
+        return None
+
+
+def create_appointment_notification(appointment, status_change, user_type="patient"):
+    """
+    Fonction utilitaire pour créer des notifications spécifiques aux rendez-vous
+    """
+    try:
+        patient = appointment.patient
+        doctor = appointment.doctor
+        appointment_date = appointment.time_slot.date.strftime('%d/%m/%Y')
+        appointment_time = appointment.time_slot.start_time.strftime('%H:%M')
+        
+        if user_type == "patient":
+            user = patient.user if hasattr(patient, 'user') else None
+        else:  # doctor
+            user = doctor.user if hasattr(doctor, 'user') else None
+        
+        # Définir les messages selon le changement de statut
+        notifications_config = {
+            'confirmed': {
+                'title': 'Rendez-vous confirmé',
+                'message': f'Votre rendez-vous avec Dr. {doctor.name} est confirmé pour le {appointment_date} à {appointment_time}',
+                'type': 'success',
+                'important': True
+            },
+            'cancelled': {
+                'title': 'Rendez-vous annulé',
+                'message': f'Votre rendez-vous avec Dr. {doctor.name} du {appointment_date} a été annulé',
+                'type': 'warning',
+                'important': False
+            },
+            'rescheduled': {
+                'title': 'Rendez-vous reprogrammé',
+                'message': f'Votre rendez-vous avec Dr. {doctor.name} a été reprogrammé pour le {appointment_date} à {appointment_time}',
+                'type': 'info',
+                'important': True
+            },
+            'completed': {
+                'title': 'Rendez-vous terminé',
+                'message': f'Votre rendez-vous avec Dr. {doctor.name} du {appointment_date} est terminé',
+                'type': 'info',
+                'important': False
+            }
+        }
+        
+        config = notifications_config.get(status_change, {
+            'title': f'Rendez-vous {status_change}',
+            'message': f'Statut de votre rendez-vous avec Dr. {doctor.name} modifié',
+            'type': 'info',
+            'important': False
+        })
+        
+        return create_notification(
+            user=user,
+            patient=patient,
+            doctor=doctor,
+            title=config['title'],
+            message=config['message'],
+            notification_type=config['type'],
+            category="appointment",
+            is_important=config['important'],
+            action_url="/patient/appointments/" if user_type == "patient" else "/doctors/appointments/",
+            action_text="Voir mes rendez-vous",
+            extra_data={
+                'appointment_id': appointment.id,
+                'doctor_name': doctor.name,
+                'appointment_date': appointment_date,
+                'appointment_time': appointment_time,
+                'status': status_change
+            }
+        )
+        
+    except Exception as e:
+        print(f"Erreur lors de la création de la notification de rendez-vous: {e}")
+        return None
 
 
 

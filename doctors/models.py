@@ -42,7 +42,7 @@ class Consultation(models.Model):
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField(null=True, blank=True)
-    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    type_consultation = models.CharField(max_length=20, choices=TYPE_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     notes = models.TextField(blank=True)
     prescriptions = models.TextField(blank=True)
